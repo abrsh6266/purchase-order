@@ -18,7 +18,7 @@ model PurchaseOrder {
     id                String   @id @default(uuid())
     vendorName        String   @db.VarChar(255)
     oneTimeVendor     String?  @db.VarChar(255)
-    poDate            DateTime @default(now()) @db.Date
+    poDate            DateTime @default(dbgenerated("(CURRENT_DATE)")) @db.Date
     poNumber          String   @unique @db.VarChar(50)
     customerSO        String?  @db.VarChar(255)
     customerInvoice   String?  @db.VarChar(255)

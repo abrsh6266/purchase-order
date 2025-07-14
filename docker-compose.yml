@@ -18,7 +18,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     environment:
-      - DATABASE_URL=mysql://root:root@db:3306/purchase
+      - DATABASE_URL=mysql://root@db:3306/purchase
       - PORT=3000
       - FRONTEND_URL=http://localhost
     ports:
