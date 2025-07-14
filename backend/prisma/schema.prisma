@@ -1,0 +1,59 @@
+// schema.prisma
+
+// This file defines your Prisma schema,
+// which is the single source of truth for your database.
+// Learn more about it in the Prisma documentation:
+// https://www.prisma.io/docs/concepts/components/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model PurchaseOrder {
+    id                String   @id @default(uuid())
+    vendorName        String   @db.VarChar(255)
+    oneTimeVendor     String?  @db.VarChar(255)
+    poDate            DateTime @default(now()) @db.Date
+    poNumber          String   @unique @db.VarChar(50)
+    customerSO        String?  @db.VarChar(255)
+    customerInvoice   String?  @db.VarChar(255)
+    apAccountName     String   @db.VarChar(255)
+    transactionType   String   @db.VarChar(50)
+    transactionOrigin String?  @db.VarChar(50)
+    shipVia           String?  @db.VarChar(50)
+
+    // General Functional Requirements
+    status      String  @default("DRAFT")
+    totalAmount Decimal @default(0.00) @db.Decimal(10, 2)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    lineItems PurchaseOrderLineItem[]
+
+    @@map("purchase_orders")
+}
+
+// Purchase Order Line Item Model
+model PurchaseOrderLineItem {
+    id              String        @id @default(uuid())
+    purchaseOrderId String
+    purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+
+    itemName      String  @db.VarChar(255)
+    quantity      Decimal @db.Decimal(10, 2)
+    unitPrice     Decimal @db.Decimal(10, 2)
+    description   String? @db.Text
+    glAccountName String  @db.VarChar(255)
+    amount        Decimal @db.Decimal(10, 2)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("purchase_order_line_items")
+}
