@@ -138,13 +138,13 @@ export const usePurchaseOrders = (
       try {
         // Get current state values to avoid dependency issues
         const currentFilters = filters;
-        const currentSearchTerm = searchTerm;
 
         const queryParams: QueryPurchaseOrderDto = {
           ...currentFilters,
           ...newFilters,
-          search: currentSearchTerm,
         };
+
+        console.log('fetchPurchaseOrders - queryParams:', queryParams);
 
         const response: PaginatedResponse<PurchaseOrder> =
           await purchaseOrderService.findAll(queryParams);
@@ -166,7 +166,7 @@ export const usePurchaseOrders = (
         setLoading(false);
       }
     },
-    [filters, searchTerm]
+    [filters]
   );
 
   // Create purchase order
@@ -279,6 +279,12 @@ export const usePurchaseOrders = (
   const setFilters = useCallback(
     (newFilters: Partial<QueryPurchaseOrderDto>) => {
       console.log('setFilters called with:', newFilters);
+      
+      // Update searchTerm state if search is provided
+      if (newFilters.search !== undefined) {
+        setSearchTermState(newFilters.search);
+      }
+      
       setFiltersState((prev) => {
         const updatedFilters = {
           ...prev,
@@ -329,7 +335,14 @@ export const usePurchaseOrders = (
       limit: pageSize,
     });
     setSearchTermState("");
-  }, [pageSize]);
+    
+    // Trigger fetch with cleared filters
+    if (autoFetch) {
+      setTimeout(() => {
+        fetchPurchaseOrders({ page: 1, limit: pageSize });
+      }, 0);
+    }
+  }, [pageSize, autoFetch, fetchPurchaseOrders]);
 
   // Set page
   const setPage = useCallback((page: number) => {

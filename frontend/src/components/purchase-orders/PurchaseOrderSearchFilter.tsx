@@ -59,7 +59,7 @@ export const PurchaseOrderSearchFilter: React.FC<PurchaseOrderSearchFilterProps>
       onFilterChange(newFilters);
       prevFiltersRef.current = currentFilters;
     }
-  }, [debouncedSearchTerm, dateRange, statusFilter]); // Remove onFilterChange from dependencies
+  }, [debouncedSearchTerm, dateRange, statusFilter, onFilterChange]);
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
