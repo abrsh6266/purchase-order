@@ -1,35 +1,27 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { AuthPage } from "./pages/AuthPage";
-import { RoomListPage } from "./pages/RoomListPage";
-import { ChatRoomPage } from "./pages/ChatRoomPage";
-import { AppLayout } from "./layouts/AppLayout";
+import { PurchaseOrderListPage } from "./pages/PurchaseOrderListPage";
+import { PurchaseOrderFormPage } from "./pages/PurchaseOrderFormPage";
 
 export const AppRouter: React.FC = () => {
   return (
     <Routes>
-      <Route path="/auth" element={<AuthPage />} />
-
       <Route
-        path="/rooms"
+        path="/purchase-orders"
         element={
-          <AppLayout>
-            <RoomListPage />
-          </AppLayout>
+            <PurchaseOrderListPage />
         }
       />
       <Route
-        path="/rooms/:roomId"
+        path="/purchase-orders/:id"
         element={
-          <AppLayout>
-            <ChatRoomPage />
-          </AppLayout>
+            <PurchaseOrderFormPage />
         }
       />
 
-      <Route path="/" element={<Navigate to="/rooms" replace />} />
+      <Route path="/" element={<Navigate to="/purchase-orders" replace />} />
 
-      <Route path="*" element={<Navigate to="/rooms" replace />} />
+      <Route path="*" element={<Navigate to="/purchase-orders" replace />} />
     </Routes>
   );
 };

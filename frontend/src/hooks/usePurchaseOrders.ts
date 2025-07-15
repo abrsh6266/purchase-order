@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { PurchaseOrder, CreatePurchaseOrderDto, UpdatePurchaseOrderDto, QueryPurchaseOrderDto } from '../types/purchaseOrder';
 import { PurchaseOrderStatus } from '../types/common';
 import { PaginatedResponse, ApiError } from '../types/api';
@@ -106,10 +106,14 @@ export const usePurchaseOrders = (options: UsePurchaseOrdersOptions = {}): UsePu
     setLoading(true);
     setError(null);
     try {
+      // Get current state values to avoid dependency issues
+      const currentFilters = filters;
+      const currentSearchTerm = searchTerm;
+      
       const queryParams: QueryPurchaseOrderDto = {
-        ...filters,
+        ...currentFilters,
         ...newFilters,
-        search: searchTerm,
+        search: currentSearchTerm,
       };
       
       const response: PaginatedResponse<PurchaseOrder> = await purchaseOrderService.findAll(queryParams);
@@ -129,7 +133,7 @@ export const usePurchaseOrders = (options: UsePurchaseOrdersOptions = {}): UsePu
     } finally {
       setLoading(false);
     }
-  }, [filters, searchTerm]);
+  }, []); // Remove dependencies to prevent infinite loop
 
   // Create purchase order
   const createPurchaseOrder = useCallback(async (data: CreatePurchaseOrderDto): Promise<PurchaseOrder> => {
@@ -299,7 +303,31 @@ export const usePurchaseOrders = (options: UsePurchaseOrdersOptions = {}): UsePu
     if (autoFetch) {
       fetchPurchaseOrders();
     }
-  }, [autoFetch, fetchPurchaseOrders]);
+  }, [autoFetch]); // Remove fetchPurchaseOrders dependency
+
+  // Fetch when filters or search term change (but not on initial mount)
+  const isInitialMount = useRef(true);
+  const prevFiltersRef = useRef(filters);
+  const prevSearchTermRef = useRef(searchTerm);
+  
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      prevFiltersRef.current = filters;
+      prevSearchTermRef.current = searchTerm;
+      return;
+    }
+    
+    // Only fetch if filters or search term actually changed
+    const filtersChanged = JSON.stringify(prevFiltersRef.current) !== JSON.stringify(filters);
+    const searchTermChanged = prevSearchTermRef.current !== searchTerm;
+    
+    if ((filtersChanged || searchTermChanged) && autoFetch) {
+      fetchPurchaseOrders();
+      prevFiltersRef.current = filters;
+      prevSearchTermRef.current = searchTerm;
+    }
+  }, [filters, searchTerm, autoFetch]); // This will trigger when filters/search change
 
   // Update pagination when filters change
   useEffect(() => {

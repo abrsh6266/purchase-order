@@ -1,0 +1,182 @@
+import React, { useState, useEffect } from 'react';
+import { Input, Select, Button, Space, Row, Col } from 'antd';
+import { PurchaseOrderLineItem, CreatePurchaseOrderLineItemDto } from '../../types/purchaseOrder';
+import { formatCurrency } from '../../utils/numberUtils';
+
+const { TextArea } = Input;
+
+interface PurchaseOrderLineItemRowProps {
+  data: Partial<PurchaseOrderLineItem> | CreatePurchaseOrderLineItemDto;
+  index: number;
+  onUpdate: (index: number, data: Partial<PurchaseOrderLineItem> | CreatePurchaseOrderLineItemDto) => void;
+  onRemove: (index: number) => void;
+  disabled?: boolean;
+}
+
+export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> = ({
+  data,
+  index,
+  onUpdate,
+  onRemove,
+  disabled = false
+}) => {
+  const [localData, setLocalData] = useState<Partial<PurchaseOrderLineItem> | CreatePurchaseOrderLineItemDto>({
+    item: '',
+    quantity: 1,
+    unitPrice: 0,
+    description: '',
+    glAccount: '',
+    ...data
+  });
+
+  const [amount, setAmount] = useState(0);
+
+  // Calculate amount whenever quantity or unitPrice changes
+  useEffect(() => {
+    const quantity = localData.quantity || 0;
+    const unitPrice = localData.unitPrice || 0;
+    const calculatedAmount = quantity * unitPrice;
+    setAmount(calculatedAmount);
+  }, [localData.quantity, localData.unitPrice]);
+
+  const handleFieldChange = (field: keyof CreatePurchaseOrderLineItemDto, value: any) => {
+    const updatedData = { ...localData, [field]: value };
+    setLocalData(updatedData);
+    onUpdate(index, updatedData);
+  };
+
+  // Mock data for dropdowns - in a real app, these would come from API
+  const itemOptions = [
+    { label: 'Office Supplies', value: 'office_supplies' },
+    { label: 'Computer Equipment', value: 'computer_equipment' },
+    { label: 'Furniture', value: 'furniture' },
+    { label: 'Software License', value: 'software_license' },
+    { label: 'Consulting Services', value: 'consulting_services' },
+  ];
+
+  const glAccountOptions = [
+    { label: '1000 - Cash', value: '1000' },
+    { label: '1100 - Accounts Receivable', value: '1100' },
+    { label: '1200 - Inventory', value: '1200' },
+    { label: '1300 - Prepaid Expenses', value: '1300' },
+    { label: '2000 - Accounts Payable', value: '2000' },
+    { label: '3000 - Equity', value: '3000' },
+    { label: '4000 - Revenue', value: '4000' },
+    { label: '5000 - Cost of Goods Sold', value: '5000' },
+    { label: '6000 - Operating Expenses', value: '6000' },
+  ];
+
+  return (
+    <div className="border border-gray-200 rounded-lg p-4 mb-4 bg-gray-50">
+      <Row gutter={16} align="middle">
+        <Col span={6}>
+          <div className="mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Item *
+            </label>
+            <Select
+              value={localData.item}
+              onChange={(value) => handleFieldChange('item', value)}
+              placeholder="Select item"
+              options={itemOptions}
+              disabled={disabled}
+              style={{ width: '100%' }}
+            />
+          </div>
+        </Col>
+
+        <Col span={3}>
+          <div className="mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Quantity *
+            </label>
+            <Input
+              type="number"
+              min={1}
+              value={localData.quantity}
+              onChange={(e) => handleFieldChange('quantity', parseFloat(e.target.value) || 0)}
+              disabled={disabled}
+            />
+          </div>
+        </Col>
+
+        <Col span={3}>
+          <div className="mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Unit Price *
+            </label>
+            <Input
+              type="number"
+              min={0}
+              step={0.01}
+              value={localData.unitPrice}
+              onChange={(e) => handleFieldChange('unitPrice', parseFloat(e.target.value) || 0)}
+              disabled={disabled}
+            />
+          </div>
+        </Col>
+
+        <Col span={4}>
+          <div className="mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Amount
+            </label>
+            <div className="p-2 bg-white border border-gray-300 rounded text-sm font-medium">
+              {formatCurrency(amount)}
+            </div>
+          </div>
+        </Col>
+
+        <Col span={4}>
+          <div className="mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              GL Account *
+            </label>
+            <Select
+              value={localData.glAccount}
+              onChange={(value) => handleFieldChange('glAccount', value)}
+              placeholder="Select account"
+              options={glAccountOptions}
+              disabled={disabled}
+              style={{ width: '100%' }}
+            />
+          </div>
+        </Col>
+
+        <Col span={3}>
+          <div className="mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Actions
+            </label>
+            <Button
+              type="text"
+              danger
+              onClick={() => onRemove(index)}
+              disabled={disabled}
+              style={{ width: '100%' }}
+            >
+              Remove
+            </Button>
+          </div>
+        </Col>
+      </Row>
+
+      <Row gutter={16}>
+        <Col span={24}>
+          <div className="mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Description
+            </label>
+            <TextArea
+              value={localData.description || ''}
+              onChange={(e) => handleFieldChange('description', e.target.value)}
+              placeholder="Enter item description"
+              rows={2}
+              disabled={disabled}
+            />
+          </div>
+        </Col>
+      </Row>
+    </div>
+  );
+}; 

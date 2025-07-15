@@ -23,6 +23,8 @@ import { PurchaseOrdersService } from './purchase-orders.service';
 import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto';
 import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';
 import { QueryPurchaseOrderDto } from './dto/query-purchase-order.dto';
+import { PaginatedResponse } from '../common/types/pagination';
+import { PurchaseOrder } from '@prisma/client';
 
 @ApiTags('Purchase Orders')
 @Controller('purchase-orders')
@@ -101,49 +103,55 @@ export class PurchaseOrdersController {
   @Get()
   @ApiOperation({ 
     summary: 'Get all Purchase Orders',
-    description: 'Retrieves a list of Purchase Orders with optional filtering and searching capabilities.'
+    description: 'Retrieves a paginated list of Purchase Orders with optional filtering, searching, and sorting capabilities.'
   })
   @ApiQuery({ type: QueryPurchaseOrderDto })
   @ApiResponse({
     status: 200,
-    description: 'List of Purchase Orders retrieved successfully',
+    description: 'Paginated list of Purchase Orders retrieved successfully',
     schema: {
-      example: [
-        {
-          id: '550e8400-e29b-41d4-a716-446655440000',
-          vendorName: 'ABC Suppliers Inc.',
-          oneTimeVendor: null,
-          poDate: '2025-07-14',
-          poNumber: 'PO-2025-001',
-          customerSO: 'SO-2025-001',
-          customerInvoice: null,
-          apAccount: 'Trade Creditors',
-          transactionType: 'Goods',
-          transactionOrigin: 'Local',
-          shipVia: "Customer's Vehicle",
-          status: 'DRAFT',
-          totalAmount: '259.90',
-          createdAt: '2025-07-14T10:30:00.000Z',
-          updatedAt: '2025-07-14T10:30:00.000Z',
-          lineItems: [
-            {
-              id: '550e8400-e29b-41d4-a716-446655440001',
-              purchaseOrderId: '550e8400-e29b-41d4-a716-446655440000',
-              item: 'Office Supplies',
-              quantity: '10.00',
-              unitPrice: '25.99',
-              description: 'High-quality office supplies',
-              glAccount: 'Office Expenses',
-              amount: '259.90',
-              createdAt: '2025-07-14T10:30:00.000Z',
-              updatedAt: '2025-07-14T10:30:00.000Z'
-            }
-          ]
-        }
-      ]
+      example: {
+        data: [
+          {
+            id: '550e8400-e29b-41d4-a716-446655440000',
+            vendorName: 'ABC Suppliers Inc.',
+            oneTimeVendor: null,
+            poDate: '2025-07-14',
+            poNumber: 'PO-2025-001',
+            customerSO: 'SO-2025-001',
+            customerInvoice: null,
+            apAccount: 'Trade Creditors',
+            transactionType: 'Goods',
+            transactionOrigin: 'Local',
+            shipVia: "Customer's Vehicle",
+            status: 'DRAFT',
+            totalAmount: '259.90',
+            createdAt: '2025-07-14T10:30:00.000Z',
+            updatedAt: '2025-07-14T10:30:00.000Z',
+            lineItems: [
+              {
+                id: '550e8400-e29b-41d4-a716-446655440001',
+                purchaseOrderId: '550e8400-e29b-41d4-a716-446655440000',
+                item: 'Office Supplies',
+                quantity: '10.00',
+                unitPrice: '25.99',
+                description: 'High-quality office supplies',
+                glAccount: 'Office Expenses',
+                amount: '259.90',
+                createdAt: '2025-07-14T10:30:00.000Z',
+                updatedAt: '2025-07-14T10:30:00.000Z'
+              }
+            ]
+          }
+        ],
+        total: 25,
+        page: 1,
+        limit: 10,
+        totalPages: 3
+      }
     }
   })
-  findAll(@Query() query: QueryPurchaseOrderDto) {
+  findAll(@Query() query: QueryPurchaseOrderDto): Promise<PaginatedResponse<PurchaseOrder>> {
     return this.purchaseOrdersService.findAll(query);
   }
 

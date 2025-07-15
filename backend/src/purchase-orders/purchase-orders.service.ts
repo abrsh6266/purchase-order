@@ -5,6 +5,7 @@ import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';
 import { QueryPurchaseOrderDto } from './dto/query-purchase-order.dto';
 import { PurchaseOrder, Prisma } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
+import { PaginatedResponse } from '../common/types/pagination';
 
 @Injectable()
 export class PurchaseOrdersService {
@@ -72,7 +73,7 @@ export class PurchaseOrdersService {
         }
     }
 
-    async findAll(query: QueryPurchaseOrderDto): Promise<PurchaseOrder[]> {
+    async findAll(query: QueryPurchaseOrderDto): Promise<PaginatedResponse<PurchaseOrder>> {
         const where: Prisma.PurchaseOrderWhereInput = {};
 
         // Search functionality
@@ -100,17 +101,41 @@ export class PurchaseOrdersService {
             where.status = query.status;
         }
 
+        // Pagination
+        const page = query.page || 1;
+        const limit = query.limit || 10;
+        const skip = (page - 1) * limit;
+
+        // Sorting
+        const orderBy: Prisma.PurchaseOrderOrderByWithRelationInput = {};
+        const sortBy = query.sortBy || 'createdAt';
+        const sortOrder = query.sortOrder || 'desc';
+        
+        orderBy[sortBy] = sortOrder;
+
+        // Get total count for pagination
+        const total = await this.prisma.purchaseOrder.count({ where });
+
+        // Get paginated results
         const purchaseOrders = await this.prisma.purchaseOrder.findMany({
             where,
             include: {
                 lineItems: true,
             },
-            orderBy: {
-                createdAt: 'desc',
-            },
+            orderBy,
+            skip,
+            take: limit,
         });
 
-        return purchaseOrders;
+        const totalPages = Math.ceil(total / limit);
+
+        return {
+            data: purchaseOrders,
+            total,
+            page,
+            limit,
+            totalPages,
+        };
     }
 
     async findOne(id: string): Promise<PurchaseOrder> {
