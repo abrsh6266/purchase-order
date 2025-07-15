@@ -5,7 +5,6 @@ import {
   Button,
   Row,
   Col,
-  Space,
   Tooltip,
   Card,
   Divider,
@@ -16,7 +15,6 @@ import {
   BankOutlined,
   DeleteOutlined,
   EditOutlined,
-  CalculatorOutlined,
   InfoCircleOutlined,
 } from "@ant-design/icons";
 import {

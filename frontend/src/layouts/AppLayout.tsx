@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  Layout,
-  Menu,
-  Typography,
-  Button,
-  Space,
-  Divider,
-} from "antd";
+import { Layout, Menu, Typography, Button, Space, Divider } from "antd";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -58,16 +51,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       key: "/gl-accounts",
       icon: <BankOutlined />,
       label: "GL Accounts",
-    },
-    {
-      key: "/dashboard",
-      icon: <DashboardOutlined />,
-      label: "Dashboard",
-    },
-    {
-      key: "/settings",
-      icon: <SettingOutlined />,
-      label: "Settings",
     },
   ];
 

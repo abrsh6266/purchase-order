@@ -5,7 +5,6 @@ import {
   Select,
   DatePicker,
   Button,
-  Space,
   Card,
   Typography,
   Row,
@@ -71,7 +70,6 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     values,
     errors,
     touched,
-    isValid,
     setValue,
     setValues,
     setError,
@@ -79,9 +77,6 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     setTouched,
     validateField,
     validateForm,
-    resetForm,
-    handleChange,
-    handleBlur,
   } = useFormValidation({
     initialValues: {
       vendorName: "",
@@ -200,7 +195,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
   };
 
   // Handle form field changes and sync with validation state
-  const handleFormChange = (changedValues: any, allValues: any) => {
+  const handleFormChange = (changedValues: any, _allValues: any) => {
     // Update validation state when form values change
     Object.keys(changedValues).forEach((key) => {
       setValue(key, changedValues[key]);
@@ -401,20 +396,20 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
   ];
 
   const transactionTypeOptions = Object.entries(TransactionType).map(
-    ([key, value]) => ({
+    ([_key, value]) => ({
       label: value,
       value: value,
     })
   );
 
   const transactionOriginOptions = Object.entries(TransactionOrigin).map(
-    ([key, value]) => ({
+    ([_key, value]) => ({
       label: value,
       value: value,
     })
   );
 
-  const shipViaOptions = Object.entries(ShipVia).map(([key, value]) => ({
+  const shipViaOptions = Object.entries(ShipVia).map(([_key, value]) => ({
     label: value,
     value: value,
   }));

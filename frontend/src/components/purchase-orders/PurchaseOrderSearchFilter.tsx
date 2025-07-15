@@ -65,7 +65,7 @@ export const PurchaseOrderSearchFilter: React.FC<PurchaseOrderSearchFilterProps>
     setSearchTerm(value);
   };
 
-  const handleDateRangeChange = (dates: any, dateStrings: [string, string]) => {
+  const handleDateRangeChange = (_dates: any, dateStrings: [string, string]) => {
     setDateRange(dateStrings[0] && dateStrings[1] ? dateStrings : null);
   };
 
@@ -80,7 +80,7 @@ export const PurchaseOrderSearchFilter: React.FC<PurchaseOrderSearchFilterProps>
     onClearFilters?.();
   };
 
-  const statusOptions = Object.entries(PurchaseOrderStatus).map(([key, value]) => ({
+  const statusOptions = Object.entries(PurchaseOrderStatus).map(([_key, value]) => ({
     label: value,
     value: value
   }));

@@ -15,7 +15,6 @@ import {
 import {
   SearchOutlined,
   ReloadOutlined,
-  EyeOutlined,
   EditOutlined,
   DeleteOutlined,
   SelectOutlined,
@@ -97,18 +96,10 @@ export const GLAccountList: React.FC<GLAccountListProps> = ({
     setSearchValue(value);
   }, []);
 
-  const handleFilterChange = useCallback(
-    (key: keyof QueryGLAccountDto, value: any) => {
-      onFiltersChange({ [key]: value, page: 1 });
-    },
-    [onFiltersChange]
-  );
-
   const handleTableChange = useCallback(
-    (pagination: any, filters: any, sorter: any) => {
+    (pagination: any, _filters: any, sorter: any) => {
       const newFilters: Partial<QueryGLAccountDto> = {};
 
-      // Handle pagination
       if (pagination) {
         newFilters.page = pagination.current;
         newFilters.limit = pagination.pageSize;

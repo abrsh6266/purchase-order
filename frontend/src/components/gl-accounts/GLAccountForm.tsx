@@ -2,16 +2,12 @@ import React, { useState, useEffect } from 'react';
 import {
   Form,
   Input,
-  Select,
-  Switch,
   Button,
-  Space,
   Card,
   Typography,
   Row,
   Col,
   Alert,
-  Divider,
   Tooltip,
 } from 'antd';
 import {
@@ -20,14 +16,11 @@ import {
   InfoCircleOutlined,
   BankOutlined,
   FileTextOutlined,
-  CheckCircleOutlined,
 } from '@ant-design/icons';
 import { GLAccount, CreateGLAccountDto, UpdateGLAccountDto } from '../../types/glAccount';
-import { useGLAccounts } from '../../hooks/useGLAccounts';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
-const { Option } = Select;
 
 interface GLAccountFormProps {
   initialData?: GLAccount | null;
