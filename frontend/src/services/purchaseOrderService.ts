@@ -5,7 +5,7 @@ import {
   UpdatePurchaseOrderDto,
   QueryPurchaseOrderDto,
 } from '../types/purchaseOrder';
-import { PaginatedResponse } from '../types/api';
+import { PaginatedResponse, PurchaseOrderResponse } from '../types/api';
 
 const BASE_URL = '/purchase-orders';
 
@@ -21,8 +21,8 @@ export const purchaseOrderService = {
   
   async findAll(
     params: QueryPurchaseOrderDto = {}
-  ): Promise<PaginatedResponse<PurchaseOrder>> {
-    const { data } = await api.get<PaginatedResponse<PurchaseOrder>>(BASE_URL, { params });
+  ): Promise<PurchaseOrderResponse> {
+    const { data } = await api.get<PurchaseOrderResponse>(BASE_URL, { params });
     return data;
   },
 

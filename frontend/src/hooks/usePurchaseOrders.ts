@@ -6,7 +6,7 @@ import {
   QueryPurchaseOrderDto,
 } from "../types/purchaseOrder";
 import { PurchaseOrderStatus } from "../types/common";
-import { PaginatedResponse } from "../types/api";
+import { PaginatedResponse, PurchaseOrderStatistics } from "../types/api";
 import { purchaseOrderService } from "../services/purchaseOrderService";
 
 // Helper function to extract error message
@@ -62,6 +62,9 @@ export interface UsePurchaseOrdersReturn {
   filters: QueryPurchaseOrderDto;
   searchTerm: string;
 
+  // Statistics
+  statistics: PurchaseOrderStatistics;
+
   // Actions
   fetchPurchaseOrders: (
     filters?: Partial<QueryPurchaseOrderDto>
@@ -112,6 +115,12 @@ export const usePurchaseOrders = (
   const [updating, setUpdating] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [statistics, setStatistics] = useState<PurchaseOrderStatistics>({
+    total: 0,
+    draftCount: 0,
+    submittedCount: 0,
+    totalAmount: '0',
+  });
 
   // Pagination
   const [pagination, setPagination] = useState({
@@ -146,10 +155,10 @@ export const usePurchaseOrders = (
 
         console.log('fetchPurchaseOrders - queryParams:', queryParams);
 
-        const response: PaginatedResponse<PurchaseOrder> =
-          await purchaseOrderService.findAll(queryParams);
+        const response = await purchaseOrderService.findAll(queryParams);
 
         setPurchaseOrders(response.data);
+        setStatistics(response.statistics);
         setPagination((prev) => ({
           ...prev,
           current: response.page,
@@ -457,6 +466,9 @@ export const usePurchaseOrders = (
     // Filters and search
     filters,
     searchTerm,
+
+    // Statistics
+    statistics,
 
     // Actions
     fetchPurchaseOrders,

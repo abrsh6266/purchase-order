@@ -1,5 +1,15 @@
 import React, { useState } from "react";
-import { Button, Space, Typography } from "antd";
+import { Button, Space, Card, Row, Col, Statistic, Badge } from "antd";
+import {
+  PlusOutlined,
+  FileExcelOutlined,
+  SearchOutlined,
+  FilterOutlined,
+  ReloadOutlined,
+  ShoppingCartOutlined,
+  DollarOutlined,
+  ClockCircleOutlined,
+} from "@ant-design/icons";
 import { LoadingSpinner, MessageBox } from "../components/common/index";
 import { PurchaseOrderSearchFilter } from "../components/purchase-orders/PurchaseOrderSearchFilter";
 import { PurchaseOrderListTable } from "../components/purchase-orders/PurchaseOrderListTable";
@@ -8,13 +18,12 @@ import { usePurchaseOrders } from "../hooks/usePurchaseOrders";
 import { QueryPurchaseOrderDto } from "../types/purchaseOrder";
 import { GLAccount } from "../types/glAccount";
 import { useNavigate } from "react-router-dom";
-import { BankOutlined } from "@ant-design/icons";
-
-const { Title } = Typography;
+import { formatCurrency } from "../utils/numberUtils";
 
 export const PurchaseOrderListPage: React.FC = () => {
   const navigate = useNavigate();
   const [showGLAccountModal, setShowGLAccountModal] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const {
     purchaseOrders,
@@ -22,11 +31,13 @@ export const PurchaseOrderListPage: React.FC = () => {
     error,
     pagination,
     filters,
+    statistics,
     deletePurchaseOrder,
     setFilters,
     clearError,
     handleTableChange,
     clearFilters,
+    fetchPurchaseOrders,
   } = usePurchaseOrders({
     initialFilters: {
       page: 1,
@@ -37,7 +48,6 @@ export const PurchaseOrderListPage: React.FC = () => {
 
   const handleFilterChange = (newFilters: Partial<QueryPurchaseOrderDto>) => {
     setFilters(newFilters);
-    // fetchPurchaseOrders will be called automatically by the hook when filters change
   };
 
   const handleNewPurchaseOrder = () => {
@@ -52,13 +62,11 @@ export const PurchaseOrderListPage: React.FC = () => {
     try {
       await deletePurchaseOrder(id);
     } catch (err) {
-      // Error is already handled by the hook
       console.error("Delete failed:", err);
     }
   };
 
   const handleExportExcel = () => {
-    // Placeholder for export functionality
     console.log("Export Excel functionality to be implemented");
   };
 
@@ -71,8 +79,11 @@ export const PurchaseOrderListPage: React.FC = () => {
   };
 
   const handleGLAccountCreated = (account: GLAccount) => {
-    // Optionally show a success message or refresh related data
     console.log("GL Account created:", account);
+  };
+
+  const handleRefresh = () => {
+    fetchPurchaseOrders();
   };
 
   if (error) {
@@ -87,38 +98,147 @@ export const PurchaseOrderListPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: "24px" }}>
-      {/* Header Section */}
-      <div className="flex justify-between items-center mb-6">
-        <Space>
-          <Button type="primary" onClick={handleNewPurchaseOrder}>
-            New Purchase Order
-          </Button>
-          <Button onClick={handleExportExcel}>Export Excel</Button>
-        </Space>
+    <div className="purchase-order-list-page">
+      <div className="mb-6">
+        <div className="flex justify-end items-center mb-4">
+          <Space size="middle">
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleNewPurchaseOrder}
+              size="large"
+            >
+              New Purchase Order
+            </Button>
+          </Space>
+        </div>
+
+        {/* Statistics Cards */}
+        <Row gutter={[16, 16]} className="mb-6">
+          <Col xs={24} sm={12} md={6}>
+            <Card className="statistic-card">
+              <Statistic
+                title="Total Orders"
+                value={statistics.total}
+                prefix={<ShoppingCartOutlined className="text-blue-500" />}
+                valueStyle={{ color: "#1890ff" }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card className="statistic-card">
+              <Statistic
+                title="Draft Orders"
+                value={statistics.draftCount}
+                prefix={<ClockCircleOutlined className="text-orange-500" />}
+                valueStyle={{ color: "#fa8c16" }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card className="statistic-card">
+              <Statistic
+                title="Submitted Orders"
+                value={statistics.submittedCount}
+                prefix={<Badge status="processing" />}
+                valueStyle={{ color: "#52c41a" }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card className="statistic-card">
+              <Statistic
+                title="Total Value"
+                value={formatCurrency(parseFloat(statistics.totalAmount))}
+                prefix={<DollarOutlined className="text-green-500" />}
+                valueStyle={{ color: "#52c41a" }}
+              />
+            </Card>
+          </Col>
+        </Row>
       </div>
 
       {/* Search & Filter Section */}
-      <div className="mb-6">
-        <PurchaseOrderSearchFilter
-          onFilterChange={handleFilterChange}
-          filters={filters}
-          onClearFilters={clearFilters}
-        />
-      </div>
+      <Card
+        className="mb-6 filter-section"
+        size="small"
+        title={
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <SearchOutlined className="text-blue-500" />
+              <span>Search & Filters</span>
+            </div>
+            <Space>
+              <Button
+                type="text"
+                icon={<FilterOutlined />}
+                onClick={() => setShowFilters(!showFilters)}
+                size="small"
+              >
+                {showFilters ? "Hide" : "Show"} Filters
+              </Button>
+              <Button
+                type="text"
+                icon={<ReloadOutlined />}
+                onClick={handleRefresh}
+                size="small"
+                loading={loading}
+              >
+                Refresh
+              </Button>
+            </Space>
+          </div>
+        }
+      >
+        {showFilters && (
+          <div className="mt-4">
+            <PurchaseOrderSearchFilter
+              onFilterChange={handleFilterChange}
+              filters={filters}
+              onClearFilters={clearFilters}
+            />
+          </div>
+        )}
+      </Card>
 
       {/* Table Section */}
-      <div className="relative">
-        {loading && <LoadingSpinner />}
-        <PurchaseOrderListTable
-          data={purchaseOrders}
-          loading={loading}
-          onEdit={handleEditPurchaseOrder}
-          onDelete={handleDeletePurchaseOrder}
-          pagination={pagination}
-          onTableChange={handleTableChange}
-        />
-      </div>
+      <Card
+        className="table-section"
+        title={
+          <div className="flex items-center justify-between">
+            <span>Purchase Orders</span>
+            <Space>
+              <Button
+                icon={<FileExcelOutlined />}
+                onClick={handleExportExcel}
+                size="small"
+              >
+                Export Excel
+              </Button>
+            </Space>
+          </div>
+        }
+      >
+        <div className="relative">
+          {loading && <LoadingSpinner />}
+          <PurchaseOrderListTable
+            data={purchaseOrders}
+            loading={loading}
+            onEdit={handleEditPurchaseOrder}
+            onDelete={handleDeletePurchaseOrder}
+            pagination={pagination}
+            onTableChange={handleTableChange}
+          />
+        </div>
+      </Card>
+
+      {/* GL Account Modal */}
+      <GLAccountModal
+        visible={showGLAccountModal}
+        onClose={handleGLAccountModalClose}
+        mode="manage"
+        onSelect={handleGLAccountCreated}
+      />
     </div>
   );
 };

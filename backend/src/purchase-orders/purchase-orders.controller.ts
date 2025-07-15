@@ -26,6 +26,17 @@ import { QueryPurchaseOrderDto } from './dto/query-purchase-order.dto';
 import { PaginatedResponse } from '../common/types/pagination';
 import { PurchaseOrder } from '@prisma/client';
 
+interface PurchaseOrderStatistics {
+  total: number;
+  draftCount: number;
+  submittedCount: number;
+  totalAmount: string;
+}
+
+interface PurchaseOrderResponse extends PaginatedResponse<PurchaseOrder> {
+  statistics: PurchaseOrderStatistics;
+}
+
 @ApiTags('Purchase Orders')
 @Controller('purchase-orders')
 export class PurchaseOrdersController {
@@ -147,11 +158,17 @@ export class PurchaseOrdersController {
         total: 25,
         page: 1,
         limit: 10,
-        totalPages: 3
+        totalPages: 3,
+        statistics: {
+          total: 25,
+          draftCount: 15,
+          submittedCount: 10,
+          totalAmount: '12500.50'
+        }
       }
     }
   })
-  findAll(@Query() query: QueryPurchaseOrderDto): Promise<PaginatedResponse<PurchaseOrder>> {
+  findAll(@Query() query: QueryPurchaseOrderDto): Promise<PurchaseOrderResponse> {
     return this.purchaseOrdersService.findAll(query);
   }
 

@@ -485,7 +485,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
               description={
                 initialData.status === PurchaseOrderStatus.DRAFT
                   ? "This purchase order is currently in draft status. You can continue editing and save as draft or submit when ready."
-                  : "This purchase order has been submitted and may require approval."
+                  : "This purchase order has been submitted."
               }
             />
           </div>

@@ -6,6 +6,17 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
+export interface PurchaseOrderStatistics {
+  total: number;
+  draftCount: number;
+  submittedCount: number;
+  totalAmount: string;
+}
+
+export interface PurchaseOrderResponse extends PaginatedResponse<any> {
+  statistics: PurchaseOrderStatistics;
+}
+
 export interface ApiError {
   statusCode: number;
   message: string | string[];

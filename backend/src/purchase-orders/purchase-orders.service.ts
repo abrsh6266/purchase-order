@@ -7,6 +7,17 @@ import { PurchaseOrder, Prisma } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 import { PaginatedResponse } from '../common/types/pagination';
 
+interface PurchaseOrderStatistics {
+  total: number;
+  draftCount: number;
+  submittedCount: number;
+  totalAmount: string;
+}
+
+interface PurchaseOrderResponse extends PaginatedResponse<PurchaseOrder> {
+  statistics: PurchaseOrderStatistics;
+}
+
 @Injectable()
 export class PurchaseOrdersService {
     constructor(private readonly prisma: PrismaService) { }
@@ -76,7 +87,7 @@ export class PurchaseOrdersService {
         }
     }
 
-    async findAll(query: QueryPurchaseOrderDto): Promise<PaginatedResponse<PurchaseOrder>> {
+    async findAll(query: QueryPurchaseOrderDto): Promise<PurchaseOrderResponse> {
         const where: Prisma.PurchaseOrderWhereInput = {};
 
         // Search functionality
@@ -133,6 +144,22 @@ export class PurchaseOrdersService {
             take: limit,
         });
 
+        // Calculate statistics from all data (not just current page)
+        const allPurchaseOrders = await this.prisma.purchaseOrder.findMany({
+            where,
+            select: {
+                status: true,
+                totalAmount: true,
+            },
+        });
+
+        const statistics: PurchaseOrderStatistics = {
+            total: allPurchaseOrders.length,
+            draftCount: allPurchaseOrders.filter(po => po.status === 'DRAFT').length,
+            submittedCount: allPurchaseOrders.filter(po => po.status === 'SUBMITTED').length,
+            totalAmount: allPurchaseOrders.reduce((sum, po) => sum.add(po.totalAmount), new Decimal(0)).toString(),
+        };
+
         const totalPages = Math.ceil(total / limit);
 
         return {
@@ -141,6 +168,7 @@ export class PurchaseOrdersService {
             page,
             limit,
             totalPages,
+            statistics,
         };
     }
 
