@@ -115,8 +115,6 @@ export const PurchaseOrderFormPage: React.FC<PurchaseOrderFormPageProps> = ({
     }
   };
 
-  // Don't show full-page error for validation errors, show them inline instead
-
   return (
     <div className="p-2 sm:p-4 md:p-6">
       <Card>
@@ -129,7 +127,6 @@ export const PurchaseOrderFormPage: React.FC<PurchaseOrderFormPageProps> = ({
         <div className="relative">
           {loading && <LoadingSpinner />}
 
-          {/* Show error message inline if there's an error */}
           {error && (
             <div className="mb-4">
               <MessageBox
