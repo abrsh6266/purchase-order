@@ -59,11 +59,11 @@ export class PurchaseOrdersController {
           {
             id: '550e8400-e29b-41d4-a716-446655440001',
             purchaseOrderId: '550e8400-e29b-41d4-a716-446655440000',
-            itemName: 'Office Supplies',
+            item: 'Office Supplies',
             quantity: '10.00',
             unitPrice: '25.99',
             description: 'High-quality office supplies',
-            glAccountName: 'Office Expenses',
+            glAccount: 'Office Expenses',
             amount: '259.90',
             createdAt: '2025-07-14T10:30:00.000Z',
             updatedAt: '2025-07-14T10:30:00.000Z'
@@ -129,11 +129,11 @@ export class PurchaseOrdersController {
             {
               id: '550e8400-e29b-41d4-a716-446655440001',
               purchaseOrderId: '550e8400-e29b-41d4-a716-446655440000',
-              itemName: 'Office Supplies',
+              item: 'Office Supplies',
               quantity: '10.00',
               unitPrice: '25.99',
               description: 'High-quality office supplies',
-              glAccountName: 'Office Expenses',
+              glAccount: 'Office Expenses',
               amount: '259.90',
               createdAt: '2025-07-14T10:30:00.000Z',
               updatedAt: '2025-07-14T10:30:00.000Z'
@@ -181,11 +181,11 @@ export class PurchaseOrdersController {
           {
             id: '550e8400-e29b-41d4-a716-446655440001',
             purchaseOrderId: '550e8400-e29b-41d4-a716-446655440000',
-            itemName: 'Office Supplies',
+            item: 'Office Supplies',
             quantity: '10.00',
             unitPrice: '25.99',
             description: 'High-quality office supplies',
-            glAccountName: 'Office Expenses',
+            glAccount: 'Office Expenses',
             amount: '259.90',
             createdAt: '2025-07-14T10:30:00.000Z',
             updatedAt: '2025-07-14T10:30:00.000Z'
@@ -244,11 +244,11 @@ export class PurchaseOrdersController {
           {
             id: '550e8400-e29b-41d4-a716-446655440001',
             purchaseOrderId: '550e8400-e29b-41d4-a716-446655440000',
-            itemName: 'Office Supplies',
+            item: 'Office Supplies',
             quantity: '10.00',
             unitPrice: '25.99',
             description: 'High-quality office supplies',
-            glAccountName: 'Office Expenses',
+            glAccount: 'Office Expenses',
             amount: '259.90',
             createdAt: '2025-07-14T10:30:00.000Z',
             updatedAt: '2025-07-14T10:35:00.000Z'

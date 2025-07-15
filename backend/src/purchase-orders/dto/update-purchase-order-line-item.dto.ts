@@ -19,7 +19,7 @@ export class UpdatePurchaseOrderLineItemDto {
     })
     @IsOptional()
     @IsString()
-    itemName?: string;
+    item?: string;
 
     @ApiProperty({
         description: 'Quantity of the item',
@@ -59,7 +59,7 @@ export class UpdatePurchaseOrderLineItemDto {
     })
     @IsOptional()
     @IsString()
-    glAccountName?: string;
+    glAccount?: string;
 
     @ApiProperty({
         description: 'Flag to indicate if this line item should be deleted',

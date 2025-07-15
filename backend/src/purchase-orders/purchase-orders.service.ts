@@ -247,11 +247,11 @@ export class PurchaseOrdersService {
         // Update existing line items
         for (const item of lineItemsToUpdate) {
             const updateData: any = {
-                itemName: item.itemName,
+                item: item.item,
                 quantity: item.quantity ? new Decimal(item.quantity) : undefined,
                 unitPrice: item.unitPrice ? new Decimal(item.unitPrice) : undefined,
                 description: item.description,
-                glAccountName: item.glAccountName,
+                glAccount: item.glAccount,
             };
 
             // Remove undefined values
@@ -288,11 +288,11 @@ export class PurchaseOrdersService {
 
                 return {
                     purchaseOrderId,
-                    itemName: item.itemName,
+                    item: item.item,
                     quantity: new Decimal(item.quantity),
                     unitPrice: new Decimal(item.unitPrice),
                     description: item.description,
-                    glAccountName: item.glAccountName,
+                    glAccount: item.glAccount,
                     amount,
                 };
             });

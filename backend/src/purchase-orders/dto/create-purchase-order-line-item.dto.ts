@@ -8,7 +8,7 @@ export class CreatePurchaseOrderLineItemDto {
     })
     @IsString()
     @IsNotEmpty()
-    itemName: string;
+    item: string;
 
     @ApiProperty({
         description: 'Quantity of the item',
@@ -43,5 +43,5 @@ export class CreatePurchaseOrderLineItemDto {
     })
     @IsString()
     @IsNotEmpty()
-    glAccountName: string;
+    glAccount: string;
 }
