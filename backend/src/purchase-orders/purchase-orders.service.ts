@@ -51,6 +51,7 @@ export class PurchaseOrdersService {
                     transactionType: createPurchaseOrderDto.transactionType,
                     transactionOrigin: createPurchaseOrderDto.transactionOrigin,
                     shipVia: createPurchaseOrderDto.shipVia,
+                    status: createPurchaseOrderDto.status || 'DRAFT', // Default to DRAFT if not provided
                     totalAmount,
                     lineItems: {
                         create: lineItemsWithAmounts,

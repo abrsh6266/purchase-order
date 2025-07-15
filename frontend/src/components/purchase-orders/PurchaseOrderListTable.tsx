@@ -24,7 +24,6 @@ export const PurchaseOrderListTable: React.FC<PurchaseOrderListTableProps> = ({
       SUBMITTED: 'processing',
       APPROVED: 'success',
       REJECTED: 'error',
-      PROCESSING: 'warning',
       COMPLETED: 'success',
       CANCELLED: 'error',
     };

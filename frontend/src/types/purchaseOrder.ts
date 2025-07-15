@@ -56,6 +56,7 @@ export interface CreatePurchaseOrderDto {
   transactionType: TransactionType;
   transactionOrigin?: TransactionOrigin;
   shipVia?: ShipVia;
+  status?: PurchaseOrderStatus;
   lineItems: CreatePurchaseOrderLineItemDto[];
 }
 

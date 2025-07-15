@@ -89,9 +89,8 @@ export const PurchaseOrderFormPage: React.FC<PurchaseOrderFormPageProps> = ({
       } else {
         await createPurchaseOrder(data as CreatePurchaseOrderDto);
       }
-      // Reset form for new entry
-      setPurchaseOrder(null);
-      // You might want to trigger a form reset here
+      // Navigate to new purchase order form
+      window.location.href = '/purchase-orders/new';
     } catch (err) {
       // Error is already handled by the hook
       console.error("Save failed:", err);

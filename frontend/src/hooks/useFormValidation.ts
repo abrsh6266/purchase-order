@@ -31,7 +31,8 @@ export interface UseFormValidationReturn {
   setValues: (values: Record<string, any>) => void;
   setError: (field: string, error: string) => void;
   setErrors: (errors: ValidationErrors) => void;
-  validateField: (field: string) => void;
+  setTouched: (field: string, touched: boolean) => void;
+  validateField: (field: string) => string[];
   validateForm: () => boolean;
   resetForm: () => void;
   handleChange: (field: string) => (value: any) => void;
@@ -152,6 +153,11 @@ export const useFormValidation = ({
     setErrors(newErrors);
   }, []);
 
+  // Set touched state for a field
+  const setTouchedHandler = useCallback((field: string, touched: boolean) => {
+    setTouched(prev => ({ ...prev, [field]: touched }));
+  }, []);
+
   // Handle field change
   const handleChange = useCallback((field: string) => (value: any) => {
     setValue(field, value);
@@ -190,6 +196,7 @@ export const useFormValidation = ({
     setValues: setValuesHandler,
     setError,
     setErrors: setErrorsHandler,
+    setTouched: setTouchedHandler,
     validateField,
     validateForm,
     resetForm,

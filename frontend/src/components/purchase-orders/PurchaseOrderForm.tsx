@@ -10,6 +10,8 @@ import {
   Typography,
   Row,
   Col,
+  Alert,
+  Modal,
 } from "antd";
 import {
   PurchaseOrder,
@@ -22,6 +24,7 @@ import {
   TransactionType,
   TransactionOrigin,
   ShipVia,
+  PurchaseOrderStatus,
 } from "../../types/common";
 import { PurchaseOrderLineItemRow } from "./PurchaseOrderLineItemRow";
 import { formatCurrency } from "../../utils/numberUtils";
@@ -73,6 +76,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     setValues,
     setError,
     setErrors,
+    setTouched,
     validateField,
     validateForm,
     resetForm,
@@ -200,20 +204,89 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     // Update validation state when form values change
     Object.keys(changedValues).forEach((key) => {
       setValue(key, changedValues[key]);
+
+      // Handle validation for this field
+      if (changedValues[key] && changedValues[key] !== "") {
+        // Clear error for this field if it's now valid
+        if (errors[key] && errors[key].length > 0) {
+          // Validate the field to see if it's now valid
+          const fieldErrors = validateField(key);
+          if (fieldErrors.length === 0) {
+            // Clear the error for this field by creating new errors object
+            const newErrors = { ...errors };
+            newErrors[key] = [];
+            setErrors(newErrors);
+          }
+        }
+      } else {
+        // Field is empty - show error if it's required and has been touched
+        const requiredFields = [
+          "vendorName",
+          "poNumber",
+          "apAccount",
+          "transactionType",
+        ];
+        if (requiredFields.includes(key) && touched[key]) {
+          const fieldErrors = validateField(key);
+          if (fieldErrors.length > 0) {
+            const newErrors = { ...errors };
+            newErrors[key] = fieldErrors;
+            setErrors(newErrors);
+          }
+        }
+      }
     });
   };
 
-  const handleSubmit = async (action: "save" | "saveAndNew") => {
+  // Function to validate all required fields and mark them as touched
+  const validateAllFields = () => {
+    const requiredFields = [
+      "vendorName",
+      "poNumber",
+      "apAccount",
+      "transactionType",
+    ];
+
+    requiredFields.forEach((field) => {
+      validateField(field);
+      // Mark field as touched to show error styling
+      if (!values[field] || values[field] === "") {
+        setError(field, "This field is required");
+        setTouched(field, true);
+      }
+    });
+  };
+
+  const handleSubmit = async (action: "save" | "saveAndNew" | "submit") => {
     // Clear any previous form errors
     setFormError(null);
 
     try {
+      // Validate all required fields first
+      validateAllFields();
+
       // Validate form using both Ant Design and custom validation
       const formValues = await form.validateFields();
 
       // Also validate using our custom validation hook
       if (!validateForm()) {
-        setFormError("Please fix the validation errors before submitting");
+        // Get validation errors and display them
+        const validationErrors = Object.keys(errors)
+          .map((field) => {
+            if (errors[field] && errors[field].length > 0) {
+              return `${field.charAt(0).toUpperCase() + field.slice(1)}: ${
+                errors[field][0]
+              }`;
+            }
+            return null;
+          })
+          .filter(Boolean);
+
+        setFormError(
+          `Please fix the following validation errors:\n${validationErrors.join(
+            "\n"
+          )}`
+        );
         return;
       }
 
@@ -249,12 +322,19 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         return;
       }
 
+      // Determine the status based on the action
+      const submitStatus =
+        action === "save"
+          ? PurchaseOrderStatus.DRAFT
+          : PurchaseOrderStatus.SUBMITTED;
+
       const formData = {
         ...formValues,
         poDate: formValues.poDate
           ? formatDateForAPI(formValues.poDate)
           : undefined,
         lineItems: lineItems.map(({ id, ...lineItem }) => lineItem), // Remove id field before sending to API
+        status: submitStatus, // Set status based on action
       };
 
       if (formData.poDate === "") {
@@ -264,7 +344,10 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
       if (action === "save") {
         await onSave(formData);
+      } else if (action === "submit") {
+        await onSave(formData);
       } else {
+        // saveAndNew - save as submitted and navigate to new form
         await onSaveAndNew(formData);
       }
     } catch (error) {
@@ -276,6 +359,32 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         setFormError("An unexpected error occurred");
       }
     }
+  };
+
+  const handleSaveAsDraft = () => {
+    handleSubmit("save");
+  };
+
+  const handleSaveAndNew = () => {
+    Modal.confirm({
+      title: "Save and Create New",
+      content:
+        "Are you sure you want to save this purchase order as submitted and create a new one?",
+      okText: "Save & New",
+      cancelText: "Cancel",
+      onOk: () => handleSubmit("saveAndNew"),
+    });
+  };
+
+  const handleSubmitWithConfirmation = () => {
+    Modal.confirm({
+      title: "Submit Purchase Order",
+      content:
+        "Are you sure you want to submit this purchase order? Once submitted, it will change from draft to submitted status and may require approval.",
+      okText: "Submit",
+      cancelText: "Cancel",
+      onOk: () => handleSubmit("submit"),
+    });
   };
 
   const vendorOptions = [
@@ -359,10 +468,46 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         title={
           <div>
             <div>Purchase Order Details</div>
+            <div className="text-xs text-gray-500 mt-1">
+              Fields marked with <span className="text-red-500">*</span> are
+              required
+            </div>
           </div>
         }
         className="mb-4 md:mb-6"
       >
+        {/* Status Indicator */}
+        {isEditing && initialData && (
+          <div className="mb-4">
+            <Alert
+              message={`Current Status: ${initialData.status}`}
+              type={
+                initialData.status === PurchaseOrderStatus.DRAFT
+                  ? "info"
+                  : "success"
+              }
+              showIcon
+              description={
+                initialData.status === PurchaseOrderStatus.DRAFT
+                  ? "This purchase order is currently in draft status. You can continue editing and save as draft or submit when ready."
+                  : "This purchase order has been submitted and may require approval."
+              }
+            />
+          </div>
+        )}
+
+        {/* Draft Mode Indicator for New Purchase Orders */}
+        {!isEditing && (
+          <div className="mb-4">
+            <Alert
+              message="Draft Mode"
+              type="info"
+              showIcon
+              description="New purchase orders are automatically saved as drafts. You can continue editing and save as draft or submit when ready."
+            />
+          </div>
+        )}
+
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={24} md={12}>
             <Form.Item
@@ -593,19 +738,28 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
         <div className="flex flex-col sm:flex-row gap-2">
           <Button
-            type="primary"
-            onClick={() => handleSubmit("save")}
+            type="default"
+            onClick={handleSaveAsDraft}
             loading={loading}
             className="w-full sm:w-auto"
           >
-            Save
+            Save as Draft
           </Button>
           <Button
-            onClick={() => handleSubmit("saveAndNew")}
+            onClick={handleSaveAndNew}
             loading={loading}
             className="w-full sm:w-auto"
           >
             Save & New
+          </Button>
+          <Button
+            type="primary"
+            onClick={handleSubmitWithConfirmation}
+            loading={loading}
+            className="w-full sm:w-auto"
+            disabled={initialData?.status === PurchaseOrderStatus.SUBMITTED}
+          >
+            Submit
           </Button>
         </div>
       </div>

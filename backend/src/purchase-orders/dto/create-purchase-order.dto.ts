@@ -117,4 +117,18 @@ export class CreatePurchaseOrderDto {
     @ValidateNested({ each: true })
     @Type(() => CreatePurchaseOrderLineItemDto)
     lineItems: CreatePurchaseOrderLineItemDto[];
+
+    @ApiProperty({
+        description: 'Status of the purchase order',
+        example: 'DRAFT',
+        required: false,
+        default: 'DRAFT',
+        enum: ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'COMPLETED', 'CANCELLED'],
+    })
+    @IsOptional()
+    @IsString()
+    @IsIn(['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'COMPLETED', 'CANCELLED'], { 
+        message: 'Status must be one of: DRAFT, SUBMITTED, APPROVED, REJECTED, COMPLETED, CANCELLED' 
+    })
+    status?: string;
 }
