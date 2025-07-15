@@ -22,7 +22,7 @@ model PurchaseOrder {
     poNumber          String   @unique @db.VarChar(50)
     customerSO        String?  @db.VarChar(255)
     customerInvoice   String?  @db.VarChar(255)
-    apAccountName     String   @db.VarChar(255)
+    apAccount     String   @db.VarChar(255)
     transactionType   String   @db.VarChar(50)
     transactionOrigin String?  @db.VarChar(50)
     shipVia           String?  @db.VarChar(50)

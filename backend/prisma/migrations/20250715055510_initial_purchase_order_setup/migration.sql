@@ -7,7 +7,7 @@ CREATE TABLE `purchase_orders` (
     `poNumber` VARCHAR(50) NOT NULL,
     `customerSO` VARCHAR(255) NULL,
     `customerInvoice` VARCHAR(255) NULL,
-    `apAccountName` VARCHAR(255) NOT NULL,
+    `apAccount` VARCHAR(255) NOT NULL,
     `transactionType` VARCHAR(50) NOT NULL,
     `transactionOrigin` VARCHAR(50) NULL,
     `shipVia` VARCHAR(50) NULL,
