@@ -53,13 +53,13 @@ export class UpdatePurchaseOrderLineItemDto {
     description?: string;
 
     @ApiProperty({
-        description: 'GL Account Name for the item',
-        example: 'Office Expenses',
+        description: 'GL Account ID for the item',
+        example: '550e8400-e29b-41d4-a716-446655440000',
         required: false,
     })
     @IsOptional()
     @IsString()
-    glAccount?: string;
+    glAccountId?: string;
 
     @ApiProperty({
         description: 'Flag to indicate if this line item should be deleted',

@@ -4,7 +4,6 @@ import { PurchaseOrder } from '../../types/purchaseOrder';
 import { PurchaseOrderStatus } from '../../types/common';
 import { formatDate } from '../../utils/dateUtils';
 import { formatCurrency } from '../../utils/numberUtils';
-import { QueryPurchaseOrderDto } from '../../types/purchaseOrder';
 
 interface PurchaseOrderListTableProps {
   data: PurchaseOrder[];

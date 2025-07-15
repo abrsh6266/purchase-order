@@ -38,10 +38,10 @@ export class CreatePurchaseOrderLineItemDto {
     description?: string;
 
     @ApiProperty({
-        description: 'GL Account Name for the item',
-        example: 'Office Expenses',
+        description: 'GL Account ID for the item',
+        example: '550e8400-e29b-41d4-a716-446655440000',
     })
     @IsString()
     @IsNotEmpty()
-    glAccount: string;
+    glAccountId: string;
 }

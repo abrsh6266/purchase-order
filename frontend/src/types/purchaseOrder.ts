@@ -12,7 +12,13 @@ export interface PurchaseOrderLineItem {
   quantity: number;
   unitPrice: number;
   description: string | null;
-  glAccount: string;
+  glAccountId: string;
+  glAccount?: {
+    id: string;
+    accountCode: string;
+    accountName: string;
+    accountType: string;
+  };
   amount: number;
   createdAt: string;
   updatedAt: string;
@@ -42,7 +48,7 @@ export interface CreatePurchaseOrderLineItemDto {
   quantity: number;
   unitPrice: number;
   description?: string;
-  glAccount: string;
+  glAccountId: string;
 }
 
 export interface CreatePurchaseOrderDto {
@@ -66,7 +72,7 @@ export interface UpdatePurchaseOrderLineItemDto {
   quantity?: number;
   unitPrice?: number;
   description?: string;
-  glAccount?: string;
+  glAccountId?: string;
 }
 
 export interface UpdatePurchaseOrderDto {

@@ -140,7 +140,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           description: item.description || "",
-          glAccount: item.glAccount,
+          glAccountId: item.glAccountId,
         })
       );
       setLineItems(formattedLineItems);
@@ -175,7 +175,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             quantity: data.quantity || 1,
             unitPrice: data.unitPrice || 1,
             description: data.description || "",
-            glAccount: data.glAccount || "",
+            glAccountId: data.glAccountId || "",
           }
         : item
     );
@@ -194,7 +194,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       quantity: 1,
       unitPrice: 1,
       description: "",
-      glAccount: "",
+      glAccountId: "",
     };
     setLineItems([...lineItems, newLineItem]);
   };
@@ -302,7 +302,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       const invalidLineItems = lineItems.filter(
         (item) =>
           !item.item ||
-          !item.glAccount ||
+          !item.glAccountId ||
           item.quantity <= 0 ||
           item.unitPrice <= 0
       );
@@ -311,7 +311,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         const missingFields = invalidLineItems.map((item, index) => {
           const errors = [];
           if (!item.item) errors.push("Item name");
-          if (!item.glAccount) errors.push("GL Account");
+          if (!item.glAccountId) errors.push("GL Account");
           if (item.quantity <= 0) errors.push("Quantity (must be > 0)");
           if (item.unitPrice <= 0) errors.push("Unit Price (must be > 0)");
           return `Line item ${index + 1}: ${errors.join(", ")}`;
@@ -757,7 +757,6 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             onClick={handleSubmitWithConfirmation}
             loading={loading}
             className="w-full sm:w-auto"
-            disabled={initialData?.status === PurchaseOrderStatus.SUBMITTED}
           >
             Submit
           </Button>

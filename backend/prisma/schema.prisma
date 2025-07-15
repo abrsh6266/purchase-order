@@ -37,6 +37,22 @@ model PurchaseOrder {
     @@map("purchase_orders")
 }
 
+// GL Account Model
+model GLAccount {
+    id          String   @id @default(uuid())
+    accountCode String   @unique @db.VarChar(20)
+    accountName String   @db.VarChar(255)
+    description String?  @db.Text
+    
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    // Relations
+    lineItems   PurchaseOrderLineItem[]
+
+    @@map("gl_accounts")
+}
+
 // Purchase Order Line Item Model
 model PurchaseOrderLineItem {
     id              String        @id @default(uuid())
@@ -47,7 +63,8 @@ model PurchaseOrderLineItem {
     quantity    Decimal  @db.Decimal(10, 2)
     unitPrice   Decimal  @db.Decimal(10, 2)
     description String?  @db.Text
-    glAccount   String   @db.VarChar(255)
+    glAccountId String
+    glAccount   GLAccount @relation(fields: [glAccountId], references: [id])
     amount      Decimal  @db.Decimal(10, 2)
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt

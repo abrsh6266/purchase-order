@@ -21,6 +21,19 @@ CREATE TABLE `purchase_orders` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `gl_accounts` (
+    `id` VARCHAR(191) NOT NULL,
+    `accountCode` VARCHAR(20) NOT NULL,
+    `accountName` VARCHAR(255) NOT NULL,
+    `description` TEXT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `gl_accounts_accountCode_key`(`accountCode`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `purchase_order_line_items` (
     `id` VARCHAR(191) NOT NULL,
     `purchaseOrderId` VARCHAR(191) NOT NULL,
@@ -28,7 +41,7 @@ CREATE TABLE `purchase_order_line_items` (
     `quantity` DECIMAL(10, 2) NOT NULL,
     `unitPrice` DECIMAL(10, 2) NOT NULL,
     `description` TEXT NULL,
-    `glAccount` VARCHAR(255) NOT NULL,
+    `glAccountId` VARCHAR(191) NOT NULL,
     `amount` DECIMAL(10, 2) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
@@ -38,3 +51,6 @@ CREATE TABLE `purchase_order_line_items` (
 
 -- AddForeignKey
 ALTER TABLE `purchase_order_line_items` ADD CONSTRAINT `purchase_order_line_items_purchaseOrderId_fkey` FOREIGN KEY (`purchaseOrderId`) REFERENCES `purchase_orders`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `purchase_order_line_items` ADD CONSTRAINT `purchase_order_line_items_glAccountId_fkey` FOREIGN KEY (`glAccountId`) REFERENCES `gl_accounts`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

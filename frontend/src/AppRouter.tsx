@@ -24,8 +24,6 @@ export const AppRouter: React.FC = () => {
       />
 
       <Route path="/" element={<Navigate to="/purchase-orders" replace />} />
-
-      <Route path="*" element={<Navigate to="/purchase-orders" replace />} />
     </Routes>
   );
 };

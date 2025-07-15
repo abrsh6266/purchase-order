@@ -29,9 +29,11 @@ export class PurchaseOrdersService {
                     new Decimal(item.unitPrice)
                 );
                 return {
-                    ...item,
+                    item: item.item,
                     quantity: new Decimal(item.quantity),
                     unitPrice: new Decimal(item.unitPrice),
+                    description: item.description,
+                    glAccountId: item.glAccountId,
                     amount,
                 };
             });
@@ -280,7 +282,7 @@ export class PurchaseOrdersService {
                         quantity: new Decimal(item.quantity),
                         unitPrice: new Decimal(item.unitPrice),
                         description: item.description,
-                        glAccount: item.glAccount,
+                        glAccountId: item.glAccountId,
                         amount,
                     };
                 });
