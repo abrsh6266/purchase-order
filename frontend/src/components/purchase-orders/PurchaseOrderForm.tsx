@@ -368,7 +368,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item label="One Time Vendor" name="oneTimeVendor">
+            <Form.Item label={<span className="text-sm font-medium">One Time Vendor</span>} name="oneTimeVendor">
               <Input placeholder="Enter one-time vendor name" />
             </Form.Item>
           </Col>
@@ -377,7 +377,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} md={8}>
             <Form.Item
-              label="PO Date"
+              label={<span className="text-sm font-medium">PO Date</span>}
               name="poDate"
               validateStatus={errors.poDate && touched.poDate ? "error" : ""}
               help={errors.poDate && touched.poDate ? errors.poDate[0] : ""}
@@ -390,7 +390,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
           </Col>
           <Col xs={24} sm={12} md={8}>
             <Form.Item
-              label="PO Number"
+              label={<span className="text-sm font-medium">PO Number</span>}
               name="poNumber"
               validateStatus={
                 errors.poNumber && touched.poNumber ? "error" : ""
@@ -403,7 +403,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={8}>
-            <Form.Item label="Customer SO" name="customerSO">
+            <Form.Item label={<span className="text-sm font-medium">Customer SO</span>} name="customerSO">
               <Input placeholder="Enter customer SO" />
             </Form.Item>
           </Col>
@@ -411,13 +411,13 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} md={8}>
-            <Form.Item label="Customer Invoice" name="customerInvoice">
+            <Form.Item label={<span className="text-sm font-medium">Customer Invoice</span>} name="customerInvoice">
               <Input placeholder="Enter customer invoice" />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={8}>
             <Form.Item
-              label="AP Account"
+              label={<span className="text-sm font-medium">AP Account</span>}
               name="apAccount"
               validateStatus={
                 errors.apAccount && touched.apAccount ? "error" : ""
@@ -434,7 +434,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
           </Col>
           <Col xs={24} sm={24} md={8}>
             <Form.Item
-              label="Transaction Type"
+              label={<span className="text-sm font-medium">Transaction Type</span>}
               name="transactionType"
               validateStatus={
                 errors.transactionType && touched.transactionType ? "error" : ""
