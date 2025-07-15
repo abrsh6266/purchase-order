@@ -67,13 +67,13 @@ export class UpdatePurchaseOrderDto {
   customerInvoice?: string;
 
   @ApiProperty({
-    description: 'Accounts Payable account name',
+    description: 'Accounts Payable account',
     example: 'Trade Creditors',
     required: false,
   })
   @IsOptional()
   @IsString()
-  apAccountName?: string;
+  apAccount?: string;
 
   @ApiProperty({
     description: 'Type of transaction',

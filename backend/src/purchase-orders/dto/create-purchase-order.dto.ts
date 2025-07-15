@@ -67,12 +67,12 @@ export class CreatePurchaseOrderDto {
     customerInvoice?: string;
 
     @ApiProperty({
-        description: 'Accounts Payable account name',
+        description: 'Accounts Payable account',
         example: 'Trade Creditors',
     })
     @IsString()
     @IsNotEmpty()
-    apAccountName: string;
+    apAccount: string;
 
     @ApiProperty({
         description: 'Type of transaction',
