@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Layout,
   Menu,
@@ -9,7 +9,7 @@ import {
   Dropdown,
   Badge,
   Divider,
-} from 'antd';
+} from "antd";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -20,8 +20,8 @@ import {
   SettingOutlined,
   BellOutlined,
   LogoutOutlined,
-} from '@ant-design/icons';
-import { useNavigate, useLocation } from 'react-router-dom';
+} from "@ant-design/icons";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -39,70 +39,70 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   pageSubtitle,
   breadcrumb,
 }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
   // Menu items for sidebar
   const menuItems = [
     {
-      key: '/purchase-orders',
+      key: "/purchase-orders",
       icon: <FileTextOutlined />,
-      label: 'Purchase Orders',
+      label: "Purchase Orders",
       children: [
         {
-          key: '/purchase-orders',
-          label: 'All Orders',
+          key: "/purchase-orders",
+          label: "All Orders",
         },
         {
-          key: '/purchase-orders/new',
-          label: 'Create New',
+          key: "/purchase-orders/new",
+          label: "Create New",
         },
       ],
     },
     {
-      key: '/gl-accounts',
+      key: "/gl-accounts",
       icon: <BankOutlined />,
-      label: 'GL Accounts',
+      label: "GL Accounts",
     },
     {
-      key: '/dashboard',
+      key: "/dashboard",
       icon: <DashboardOutlined />,
-      label: 'Dashboard',
+      label: "Dashboard",
     },
     {
-      key: '/settings',
+      key: "/settings",
       icon: <SettingOutlined />,
-      label: 'Settings',
+      label: "Settings",
     },
   ];
 
   // User dropdown menu
   const userMenuItems = [
     {
-      key: 'profile',
+      key: "profile",
       icon: <UserOutlined />,
-      label: 'Profile',
+      label: "Profile",
     },
     {
-      key: 'settings',
+      key: "settings",
       icon: <SettingOutlined />,
-      label: 'Settings',
+      label: "Settings",
     },
     {
-      type: 'divider' as const,
+      type: "divider" as const,
     },
     {
-      key: 'logout',
+      key: "logout",
       icon: <LogoutOutlined />,
-      label: 'Logout',
+      label: "Logout",
     },
   ];
 
   const handleMenuClick = ({ key }: { key: string }) => {
-    if (key === 'logout') {
+    if (key === "logout") {
       // Handle logout
-      console.log('Logout clicked');
+      console.log("Logout clicked");
     } else {
       navigate(key);
     }
@@ -113,7 +113,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: "100vh" }}>
       {/* Sidebar */}
       <Sider
         trigger={null}
@@ -121,25 +121,25 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         collapsed={collapsed}
         width={250}
         style={{
-          background: '#001529',
-          boxShadow: '2px 0 8px rgba(0,0,0,0.15)',
+          background: "#001529",
+          boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
         }}
       >
         {/* Logo */}
         <div
           style={{
             height: 64,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: collapsed ? 'center' : 'flex-start',
-            padding: collapsed ? '0' : '0 24px',
-            borderBottom: '1px solid rgba(255,255,255,0.1)',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: collapsed ? "center" : "flex-start",
+            padding: collapsed ? "0" : "0 24px",
+            borderBottom: "1px solid rgba(255,255,255,0.1)",
           }}
         >
           <BankOutlined
             style={{
               fontSize: collapsed ? 24 : 28,
-              color: '#1890ff',
+              color: "#1890ff",
               marginRight: collapsed ? 0 : 12,
             }}
           />
@@ -147,7 +147,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             <Title
               level={4}
               style={{
-                color: '#fff',
+                color: "#fff",
                 margin: 0,
                 fontSize: 18,
                 fontWeight: 600,
@@ -166,8 +166,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           items={menuItems}
           onClick={handleSidebarMenuClick}
           style={{
-            borderRight: 'none',
-            background: 'transparent',
+            borderRight: "none",
+            background: "transparent",
           }}
         />
       </Sider>
@@ -176,12 +176,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         {/* Header */}
         <Header
           style={{
-            padding: '0 24px',
-            background: '#fff',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            padding: "0 24px",
+            background: "#fff",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
             height: 64,
           }}
         >
@@ -192,7 +192,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => setCollapsed(!collapsed)}
               style={{
-                fontSize: '16px',
+                fontSize: "16px",
                 width: 40,
                 height: 40,
               }}
@@ -204,8 +204,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                   <Text
                     key={index}
                     style={{
-                      color: index === breadcrumb.length - 1 ? '#1890ff' : '#666',
-                      cursor: item.path ? 'pointer' : 'default',
+                      color:
+                        index === breadcrumb.length - 1 ? "#1890ff" : "#666",
+                      cursor: item.path ? "pointer" : "default",
                     }}
                     onClick={() => item.path && navigate(item.path)}
                   >
@@ -215,66 +216,16 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               </Space>
             )}
           </Space>
-
-          {/* Right side - User info and notifications */}
-          <Space size="large">
-            {/* Notifications */}
-            <Badge count={3} size="small">
-              <Button
-                type="text"
-                icon={<BellOutlined />}
-                style={{
-                  fontSize: '16px',
-                  width: 40,
-                  height: 40,
-                }}
-              />
-            </Badge>
-
-            {/* User dropdown */}
-            <Dropdown
-              menu={{
-                items: userMenuItems,
-                onClick: handleMenuClick,
-              }}
-              placement="bottomRight"
-              arrow
-            >
-              <Space
-                style={{
-                  cursor: 'pointer',
-                  padding: '8px 12px',
-                  borderRadius: 6,
-                  transition: 'background-color 0.3s',
-                }}
-                className="hover:bg-gray-50"
-              >
-                <Avatar
-                  size="small"
-                  icon={<UserOutlined />}
-                  style={{ backgroundColor: '#1890ff' }}
-                />
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <Text strong style={{ fontSize: 12, lineHeight: 1 }}>
-                    Admin User
-                  </Text>
-                  <Text type="secondary" style={{ fontSize: 10, lineHeight: 1 }}>
-                    Administrator
-                  </Text>
-                </div>
-              </Space>
-            </Dropdown>
-          </Space>
         </Header>
 
         {/* Main Content */}
         <Content
           style={{
-            margin: '24px',
-            padding: '24px',
-            background: '#f5f5f5',
+            margin: "24px",
+            padding: "24px",
+            background: "#f5f5f5",
             borderRadius: 8,
-            minHeight: 'calc(100vh - 112px)',
+            minHeight: "calc(100vh - 112px)",
           }}
         >
           {/* Page Header */}
@@ -282,10 +233,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             <div
               style={{
                 marginBottom: 24,
-                padding: '24px',
-                background: '#fff',
+                padding: "24px",
+                background: "#fff",
                 borderRadius: 8,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
               }}
             >
               {pageTitle && (
@@ -304,10 +255,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           {/* Page Content */}
           <div
             style={{
-              background: '#fff',
+              background: "#fff",
               borderRadius: 8,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              overflow: 'hidden',
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              overflow: "hidden",
             }}
           >
             {children}
@@ -316,4 +267,4 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       </Layout>
     </Layout>
   );
-}; 
+};

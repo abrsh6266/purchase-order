@@ -82,20 +82,15 @@ export const GLAccountModal: React.FC<GLAccountModalProps> = ({
 
   const handleFormSubmit = useCallback(
     async (data: any) => {
-      try {
-        if (editingAccount) {
-          await updateGLAccount(editingAccount.id, data);
-        } else {
-          await createGLAccount(data);
-        }
-        setShowForm(false);
-        setEditingAccount(null);
-        // Refresh the list
-        fetchGLAccounts();
-      } catch (error) {
-        // Error is handled by the hook
-        console.error("Form submission failed:", error);
+      if (editingAccount) {
+        await updateGLAccount(editingAccount.id, data);
+      } else {
+        await createGLAccount(data);
       }
+      setShowForm(false);
+      setEditingAccount(null);
+      // Refresh the list
+      fetchGLAccounts();
     },
     [editingAccount, updateGLAccount, createGLAccount, fetchGLAccounts]
   );

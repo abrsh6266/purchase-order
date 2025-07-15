@@ -12,13 +12,20 @@ import { glAccountService } from '../services/glAccountService';
 // Helper function to extract error message
 const extractErrorMessage = (error: any): string => {
   if (error && typeof error === 'object') {
+    // Check if it's an API error with message property
     if (error.message && typeof error.message === 'string') {
       return error.message;
     }
+    // Check if it's an array of messages
     if (Array.isArray(error.message)) {
       return error.message.join(', ');
     }
+    // Check if it's a standard Error object
     if (error instanceof Error) {
+      return error.message;
+    }
+    // Check if it has a statusCode (API error)
+    if (error.statusCode && error.message) {
       return error.message;
     }
   }

@@ -56,18 +56,14 @@ export const GLAccountListPage: React.FC = () => {
 
   const handleFormSubmit = useCallback(
     async (data: any) => {
-      try {
-        if (editingAccount) {
-          await updateGLAccount(editingAccount.id, data);
-        } else {
-          await createGLAccount(data);
-        }
-        setShowForm(false);
-        setEditingAccount(null);
-        fetchGLAccounts();
-      } catch (error) {
-        console.error("Form submission failed:", error);
+      if (editingAccount) {
+        await updateGLAccount(editingAccount.id, data);
+      } else {
+        await createGLAccount(data);
       }
+      setShowForm(false);
+      setEditingAccount(null);
+      fetchGLAccounts();
     },
     [editingAccount, updateGLAccount, createGLAccount, fetchGLAccounts]
   );

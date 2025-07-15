@@ -73,7 +73,18 @@ export const GLAccountForm: React.FC<GLAccountFormProps> = ({
       await onSubmit(values);
     } catch (error) {
       console.error('Form submission failed:', error);
-      setFormError(error instanceof Error ? error.message : 'An unexpected error occurred');
+      
+      // Extract error message from various error formats
+      let errorMessage = 'An unexpected error occurred';
+      if (error && typeof error === 'object') {
+        if ((error as any).message && typeof (error as any).message === 'string') {
+          errorMessage = (error as any).message;
+        } else if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+      }
+      
+      setFormError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
