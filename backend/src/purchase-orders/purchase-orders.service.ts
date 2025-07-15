@@ -255,76 +255,37 @@ export class PurchaseOrdersService {
 
     // Private helper methods
     private async handleLineItemsUpdate(purchaseOrderId: string, lineItems: any[]): Promise<void> {
-        const lineItemsToDelete = lineItems.filter(item => item._delete && item.id);
-        const lineItemsToUpdate = lineItems.filter(item => !item._delete && item.id);
-        const lineItemsToCreate = lineItems.filter(item => !item._delete && !item.id);
+        // First, delete all existing line items for this purchase order
+        await this.prisma.purchaseOrderLineItem.deleteMany({
+            where: { purchaseOrderId },
+        });
 
-        // Delete line items
-        if (lineItemsToDelete.length > 0) {
-            await this.prisma.purchaseOrderLineItem.deleteMany({
-                where: {
-                    id: { in: lineItemsToDelete.map(item => item.id) },
-                    purchaseOrderId,
-                },
-            });
-        }
+        // Then create all the new line items
+        if (lineItems.length > 0) {
+            const createData = lineItems
+                .filter(item => !item._delete) // Filter out items marked for deletion
+                .map(item => {
+                    const amount = this.calculateLineItemAmount(
+                        new Decimal(item.quantity),
+                        new Decimal(item.unitPrice)
+                    );
 
-        // Update existing line items
-        for (const item of lineItemsToUpdate) {
-            const updateData: any = {
-                item: item.item,
-                quantity: item.quantity ? new Decimal(item.quantity) : undefined,
-                unitPrice: item.unitPrice ? new Decimal(item.unitPrice) : undefined,
-                description: item.description,
-                glAccount: item.glAccount,
-            };
-
-            // Remove undefined values
-            Object.keys(updateData).forEach(key => {
-                if (updateData[key] === undefined) {
-                    delete updateData[key];
-                }
-            });
-
-            // Calculate amount if quantity or unitPrice changed
-            if (updateData.quantity !== undefined || updateData.unitPrice !== undefined) {
-                const existingItem = await this.prisma.purchaseOrderLineItem.findUnique({
-                    where: { id: item.id },
+                    return {
+                        purchaseOrderId,
+                        item: item.item,
+                        quantity: new Decimal(item.quantity),
+                        unitPrice: new Decimal(item.unitPrice),
+                        description: item.description,
+                        glAccount: item.glAccount,
+                        amount,
+                    };
                 });
 
-                const quantity = updateData.quantity || existingItem.quantity;
-                const unitPrice = updateData.unitPrice || existingItem.unitPrice;
-                updateData.amount = this.calculateLineItemAmount(quantity, unitPrice);
+            if (createData.length > 0) {
+                await this.prisma.purchaseOrderLineItem.createMany({
+                    data: createData,
+                });
             }
-
-            await this.prisma.purchaseOrderLineItem.update({
-                where: { id: item.id },
-                data: updateData,
-            });
-        }
-
-        // Create new line items
-        if (lineItemsToCreate.length > 0) {
-            const createData = lineItemsToCreate.map(item => {
-                const amount = this.calculateLineItemAmount(
-                    new Decimal(item.quantity),
-                    new Decimal(item.unitPrice)
-                );
-
-                return {
-                    purchaseOrderId,
-                    item: item.item,
-                    quantity: new Decimal(item.quantity),
-                    unitPrice: new Decimal(item.unitPrice),
-                    description: item.description,
-                    glAccount: item.glAccount,
-                    amount,
-                };
-            });
-
-            await this.prisma.purchaseOrderLineItem.createMany({
-                data: createData,
-            });
         }
     }
 
