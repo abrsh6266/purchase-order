@@ -1,11 +1,6 @@
 export const PurchaseOrderStatus = {
   DRAFT: 'DRAFT',
   SUBMITTED: 'SUBMITTED',
-  APPROVED: 'APPROVED',
-  REJECTED: 'REJECTED',
-  PROCESSING: 'PROCESSING',
-  COMPLETED: 'COMPLETED',
-  CANCELLED: 'CANCELLED',
 } as const;
 
 export type PurchaseOrderStatus = (typeof PurchaseOrderStatus)[keyof typeof PurchaseOrderStatus];
