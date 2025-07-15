@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Space, Card, Typography } from "antd";
+import { Button, Space, Typography } from "antd";
 import { LoadingSpinner, MessageBox } from "../components/common/index";
 import { PurchaseOrderSearchFilter } from "../components/purchase-orders/PurchaseOrderSearchFilter";
 import { PurchaseOrderListTable } from "../components/purchase-orders/PurchaseOrderListTable";
@@ -15,14 +15,13 @@ const { Title } = Typography;
 export const PurchaseOrderListPage: React.FC = () => {
   const navigate = useNavigate();
   const [showGLAccountModal, setShowGLAccountModal] = useState(false);
-  
+
   const {
     purchaseOrders,
     loading,
     error,
     pagination,
     filters,
-    fetchPurchaseOrders,
     deletePurchaseOrder,
     setFilters,
     clearError,
@@ -88,57 +87,38 @@ export const PurchaseOrderListPage: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
-      <Card>
-        {/* Header Section */}
-        <div className="flex justify-between items-center mb-6">
-          <Title level={2} className="mb-0">
-            Purchase Orders
-          </Title>
-          <Space>
-            <Button 
-              type="default" 
-              icon={<BankOutlined />}
-              onClick={handleManageGLAccounts}
-            >
-              Manage GL Accounts
-            </Button>
-            <Button type="primary" onClick={handleNewPurchaseOrder}>
-              New Purchase Order
-            </Button>
-            <Button onClick={handleExportExcel}>Export Excel</Button>
-          </Space>
-        </div>
+    <div style={{ padding: "24px" }}>
+      {/* Header Section */}
+      <div className="flex justify-between items-center mb-6">
+        <Space>
+          <Button type="primary" onClick={handleNewPurchaseOrder}>
+            New Purchase Order
+          </Button>
+          <Button onClick={handleExportExcel}>Export Excel</Button>
+        </Space>
+      </div>
 
-        {/* Search & Filter Section */}
-        <div className="mb-6">
-          <PurchaseOrderSearchFilter
-            onFilterChange={handleFilterChange}
-            filters={filters}
-            onClearFilters={clearFilters}
-          />
-        </div>
+      {/* Search & Filter Section */}
+      <div className="mb-6">
+        <PurchaseOrderSearchFilter
+          onFilterChange={handleFilterChange}
+          filters={filters}
+          onClearFilters={clearFilters}
+        />
+      </div>
 
-        {/* Table Section */}
-        <div className="relative">
-          {loading && <LoadingSpinner />}
-          <PurchaseOrderListTable
-            data={purchaseOrders}
-            loading={loading}
-            onEdit={handleEditPurchaseOrder}
-            onDelete={handleDeletePurchaseOrder}
-            pagination={pagination}
-            onTableChange={handleTableChange}
-          />
-        </div>
-      </Card>
-
-      {/* GL Account Modal */}
-      <GLAccountModal
-        visible={showGLAccountModal}
-        onClose={handleGLAccountModalClose}
-        mode="manage"
-      />
+      {/* Table Section */}
+      <div className="relative">
+        {loading && <LoadingSpinner />}
+        <PurchaseOrderListTable
+          data={purchaseOrders}
+          loading={loading}
+          onEdit={handleEditPurchaseOrder}
+          onDelete={handleDeletePurchaseOrder}
+          pagination={pagination}
+          onTableChange={handleTableChange}
+        />
+      </div>
     </div>
   );
 };
