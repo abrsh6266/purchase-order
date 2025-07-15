@@ -5,9 +5,6 @@ import {
   Typography,
   Button,
   Space,
-  Avatar,
-  Dropdown,
-  Badge,
   Divider,
 } from "antd";
 import {
@@ -16,10 +13,7 @@ import {
   FileTextOutlined,
   BankOutlined,
   DashboardOutlined,
-  UserOutlined,
   SettingOutlined,
-  BellOutlined,
-  LogoutOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -76,37 +70,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       label: "Settings",
     },
   ];
-
-  // User dropdown menu
-  const userMenuItems = [
-    {
-      key: "profile",
-      icon: <UserOutlined />,
-      label: "Profile",
-    },
-    {
-      key: "settings",
-      icon: <SettingOutlined />,
-      label: "Settings",
-    },
-    {
-      type: "divider" as const,
-    },
-    {
-      key: "logout",
-      icon: <LogoutOutlined />,
-      label: "Logout",
-    },
-  ];
-
-  const handleMenuClick = ({ key }: { key: string }) => {
-    if (key === "logout") {
-      // Handle logout
-      console.log("Logout clicked");
-    } else {
-      navigate(key);
-    }
-  };
 
   const handleSidebarMenuClick = ({ key }: { key: string }) => {
     navigate(key);
@@ -221,10 +184,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         {/* Main Content */}
         <Content
           style={{
-            margin: "24px",
-            padding: "24px",
+            margin: "10px",
+            padding: "10px",
             background: "#f5f5f5",
-            borderRadius: 8,
+            borderRadius: 0,
             minHeight: "calc(100vh - 112px)",
           }}
         >

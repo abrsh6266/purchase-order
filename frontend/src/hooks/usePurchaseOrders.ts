@@ -399,10 +399,6 @@ export const usePurchaseOrders = (
     const counts: Record<PurchaseOrderStatus, number> = {
       DRAFT: 0,
       SUBMITTED: 0,
-      APPROVED: 0,
-      REJECTED: 0,
-      COMPLETED: 0,
-      CANCELLED: 0,
     };
 
     purchaseOrders.forEach((po) => {

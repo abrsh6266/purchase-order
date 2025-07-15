@@ -31,10 +31,6 @@ export const PurchaseOrderListTable: React.FC<PurchaseOrderListTableProps> = ({
     const statusColors: Record<PurchaseOrderStatus, string> = {
       DRAFT: 'default',
       SUBMITTED: 'processing',
-      APPROVED: 'success',
-      REJECTED: 'error',
-      COMPLETED: 'success',
-      CANCELLED: 'error',
     };
     return statusColors[status] || 'default';
   };

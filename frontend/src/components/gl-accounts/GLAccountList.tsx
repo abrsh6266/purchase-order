@@ -52,7 +52,6 @@ export const GLAccountList: React.FC<GLAccountListProps> = ({
   pagination,
   filters,
   onEdit,
-  onView,
   onDelete,
   onSelect,
   onFiltersChange,
@@ -126,28 +125,6 @@ export const GLAccountList: React.FC<GLAccountListProps> = ({
     },
     [onFiltersChange]
   );
-
-  const getAccountTypeColor = (type: string) => {
-    const colors = {
-      ASSET: "blue",
-      LIABILITY: "red",
-      EQUITY: "green",
-      REVENUE: "purple",
-      EXPENSE: "orange",
-    };
-    return colors[type as keyof typeof colors] || "default";
-  };
-
-  const getAccountTypeLabel = (type: string) => {
-    const labels = {
-      ASSET: "Asset",
-      LIABILITY: "Liability",
-      EQUITY: "Equity",
-      REVENUE: "Revenue",
-      EXPENSE: "Expense",
-    };
-    return labels[type as keyof typeof labels] || type;
-  };
 
   const columns = [
     {
@@ -287,27 +264,25 @@ export const GLAccountList: React.FC<GLAccountListProps> = ({
       </Card>
 
       {/* Table */}
-      <Card>
-        <Table
-          columns={columns}
-          dataSource={accounts}
-          rowKey="id"
-          loading={loading}
-          pagination={{
-            current: pagination.current,
-            pageSize: pagination.pageSize,
-            total: pagination.total,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} accounts`,
-            pageSizeOptions: ["10", "20", "50", "100"],
-          }}
-          onChange={handleTableChange}
-          scroll={{ x: 1200 }}
-          size="middle"
-        />
-      </Card>
+      <Table
+        columns={columns}
+        dataSource={accounts}
+        rowKey="id"
+        loading={loading}
+        pagination={{
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: pagination.total,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          showTotal: (total, range) =>
+            `${range[0]}-${range[1]} of ${total} accounts`,
+          pageSizeOptions: ["10", "20", "50", "100"],
+        }}
+        onChange={handleTableChange}
+        scroll={{ x: 1200 }}
+        size="middle"
+      />
     </div>
   );
 };
