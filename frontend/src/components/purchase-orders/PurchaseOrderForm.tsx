@@ -92,15 +92,14 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       shipVia: "",
     },
     validationSchema: {
-      vendorName: [{ required: true, message: "Please select a vendor" }],
-      poDate: [{ required: true, message: "Please select PO date" }],
+      vendorName: [{ required: true, message: "Vendor is required" }],
       poNumber: [
-        { required: true, message: "Please enter PO number" },
+        { required: true, message: "PO number is required" },
         { min: 2, message: "PO number must be at least 2 characters" },
       ],
-      apAccount: [{ required: true, message: "Please select AP account" }],
+      apAccount: [{ required: true, message: "AP account is required" }],
       transactionType: [
-        { required: true, message: "Please select transaction type" },
+        { required: true, message: "Transaction type is required" },
       ],
     },
     validateOnChange: true,
@@ -204,10 +203,10 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     });
   };
 
-    const handleSubmit = async (action: "save" | "saveAndNew") => {
+  const handleSubmit = async (action: "save" | "saveAndNew") => {
     // Clear any previous form errors
     setFormError(null);
-    
+
     try {
       // Validate form using both Ant Design and custom validation
       const formValues = await form.validateFields();
@@ -220,16 +219,18 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
       // Check if there are any line items
       if (lineItems.length === 0) {
-        setFormError("At least one line item is required. Please add a line item before submitting.");
+        setFormError(
+          "At least one line item is required. Please add a line item before submitting."
+        );
         return;
       }
 
       // Validate each line item
       const invalidLineItems = lineItems.filter(
-        (item) => 
-          !item.item || 
-          !item.glAccount || 
-          item.quantity <= 0 || 
+        (item) =>
+          !item.item ||
+          !item.glAccount ||
+          item.quantity <= 0 ||
           item.unitPrice <= 0
       );
 
@@ -242,7 +243,9 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
           if (item.unitPrice <= 0) errors.push("Unit Price (must be > 0)");
           return `Line item ${index + 1}: ${errors.join(", ")}`;
         });
-        setFormError(`Please fix the following issues:\n${missingFields.join("\n")}`);
+        setFormError(
+          `Please fix the following issues:\n${missingFields.join("\n")}`
+        );
         return;
       }
 
@@ -314,41 +317,60 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       className="space-y-4 md:space-y-6"
       onValuesChange={handleFormChange}
     >
-             {/* Display form validation errors */}
-       {formError && (
-         <div className="mb-4 p-3 md:p-4 bg-red-50 border border-red-200 rounded-lg">
-           <div className="flex items-start">
-             <div className="flex-shrink-0">
-               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-               </svg>
-             </div>
-             <div className="ml-3 flex-1">
-               <h3 className="text-sm font-medium text-red-800">
-                 Form Validation Error
-               </h3>
-               <div className="mt-2 text-sm text-red-700 whitespace-pre-line break-words">
-                 {formError}
-               </div>
-               <div className="mt-3">
-                 <button
-                   type="button"
-                   onClick={() => setFormError(null)}
-                   className="text-sm text-red-600 hover:text-red-500 font-medium"
-                 >
-                   Dismiss
-                 </button>
-               </div>
-             </div>
-           </div>
-         </div>
-       )}
+      {/* Display form validation errors */}
+      {formError && (
+        <div className="mb-4 p-3 md:p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <svg
+                className="h-5 w-5 text-red-400"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className="ml-3 flex-1">
+              <h3 className="text-sm font-medium text-red-800">
+                Form Validation Error
+              </h3>
+              <div className="mt-2 text-sm text-red-700 whitespace-pre-line break-words">
+                {formError}
+              </div>
+              <div className="mt-3">
+                <button
+                  type="button"
+                  onClick={() => setFormError(null)}
+                  className="text-sm text-red-600 hover:text-red-500 font-medium"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-      <Card title="Purchase Order Details" className="mb-4 md:mb-6">
+      <Card
+        title={
+          <div>
+            <div>Purchase Order Details</div>
+          </div>
+        }
+        className="mb-4 md:mb-6"
+      >
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={24} md={12}>
             <Form.Item
-              label={<span className="text-sm font-medium">Vendor</span>}
+              label={
+                <span className="text-sm font-medium">
+                  Vendor <span className="text-red-500">*</span>
+                </span>
+              }
               name="vendorName"
               validateStatus={
                 errors.vendorName && touched.vendorName ? "error" : ""
@@ -360,7 +382,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
               }
             >
               <Select
-                placeholder="Select vendor"
+                placeholder="Select vendor (required)"
                 options={vendorOptions}
                 showSearch
                 allowClear
@@ -368,7 +390,12 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item label={<span className="text-sm font-medium">One Time Vendor</span>} name="oneTimeVendor">
+            <Form.Item
+              label={
+                <span className="text-sm font-medium">One Time Vendor</span>
+              }
+              name="oneTimeVendor"
+            >
               <Input placeholder="Enter one-time vendor name" />
             </Form.Item>
           </Col>
@@ -379,8 +406,6 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             <Form.Item
               label={<span className="text-sm font-medium">PO Date</span>}
               name="poDate"
-              validateStatus={errors.poDate && touched.poDate ? "error" : ""}
-              help={errors.poDate && touched.poDate ? errors.poDate[0] : ""}
             >
               <DatePicker
                 style={{ width: "100%" }}
@@ -390,7 +415,11 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
           </Col>
           <Col xs={24} sm={12} md={8}>
             <Form.Item
-              label={<span className="text-sm font-medium">PO Number</span>}
+              label={
+                <span className="text-sm font-medium">
+                  PO Number <span className="text-red-500">*</span>
+                </span>
+              }
               name="poNumber"
               validateStatus={
                 errors.poNumber && touched.poNumber ? "error" : ""
@@ -399,11 +428,14 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                 errors.poNumber && touched.poNumber ? errors.poNumber[0] : ""
               }
             >
-              <Input placeholder="Enter PO number" />
+              <Input placeholder="Enter PO number (required)" />
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={8}>
-            <Form.Item label={<span className="text-sm font-medium">Customer SO</span>} name="customerSO">
+            <Form.Item
+              label={<span className="text-sm font-medium">Customer SO</span>}
+              name="customerSO"
+            >
               <Input placeholder="Enter customer SO" />
             </Form.Item>
           </Col>
@@ -411,13 +443,22 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} md={8}>
-            <Form.Item label={<span className="text-sm font-medium">Customer Invoice</span>} name="customerInvoice">
+            <Form.Item
+              label={
+                <span className="text-sm font-medium">Customer Invoice</span>
+              }
+              name="customerInvoice"
+            >
               <Input placeholder="Enter customer invoice" />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={8}>
             <Form.Item
-              label={<span className="text-sm font-medium">AP Account</span>}
+              label={
+                <span className="text-sm font-medium">
+                  AP Account <span className="text-red-500">*</span>
+                </span>
+              }
               name="apAccount"
               validateStatus={
                 errors.apAccount && touched.apAccount ? "error" : ""
@@ -427,14 +468,18 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
               }
             >
               <Select
-                placeholder="Select AP account"
+                placeholder="Select AP account (required)"
                 options={apAccountOptions}
               />
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={8}>
             <Form.Item
-              label={<span className="text-sm font-medium">Transaction Type</span>}
+              label={
+                <span className="text-sm font-medium">
+                  Transaction Type <span className="text-red-500">*</span>
+                </span>
+              }
               name="transactionType"
               validateStatus={
                 errors.transactionType && touched.transactionType ? "error" : ""
@@ -446,7 +491,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
               }
             >
               <Select
-                placeholder="Select transaction type"
+                placeholder="Select transaction type (required)"
                 options={transactionTypeOptions}
               />
             </Form.Item>
@@ -475,13 +520,22 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         </Row>
       </Card>
 
-            <Card 
+      <Card
         title={
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
-            <span>Line Items</span>
-            <Button type="dashed" onClick={handleAddLineItem} className="w-full sm:w-auto">
-              Add Line Item
-            </Button>
+          <div>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+              <span>Line Items</span>
+              <Button
+                type="dashed"
+                onClick={handleAddLineItem}
+                className="w-full sm:w-auto"
+              >
+                Add Line Item
+              </Button>
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              At least one line item is required.
+            </div>
           </div>
         }
         className="mb-4 md:mb-6"
@@ -516,29 +570,38 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         </div>
       </Card>
 
-            <div className="flex flex-col sm:flex-row justify-between gap-4">
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
         <div className="flex flex-col sm:flex-row gap-2">
-          <Button onClick={onCancel} disabled={loading} className="w-full sm:w-auto">
+          <Button
+            onClick={onCancel}
+            disabled={loading}
+            className="w-full sm:w-auto"
+          >
             Cancel
           </Button>
           {isEditing && onDelete && (
-            <Button danger onClick={onDelete} disabled={loading} className="w-full sm:w-auto">
+            <Button
+              danger
+              onClick={onDelete}
+              disabled={loading}
+              className="w-full sm:w-auto"
+            >
               Delete
             </Button>
           )}
         </div>
-        
+
         <div className="flex flex-col sm:flex-row gap-2">
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             onClick={() => handleSubmit("save")}
             loading={loading}
             className="w-full sm:w-auto"
           >
             Save
           </Button>
-          <Button 
-            onClick={() => handleSubmit("saveAndNew")} 
+          <Button
+            onClick={() => handleSubmit("saveAndNew")}
             loading={loading}
             className="w-full sm:w-auto"
           >

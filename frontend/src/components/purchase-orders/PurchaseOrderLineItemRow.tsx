@@ -72,12 +72,12 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
         <Col xs={24} sm={12} md={6}>
           <div className="mb-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Item *
+              Item <span className="text-red-500">*</span>
             </label>
             <Select
               value={localData.item}
               onChange={(value) => handleFieldChange('item', value)}
-              placeholder="Select item"
+              placeholder="Select item (required)"
               options={itemOptions}
               disabled={disabled}
               style={{ width: '100%' }}
@@ -92,7 +92,7 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
         <Col xs={12} sm={6} md={3}>
           <div className="mb-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Quantity *
+              Quantity <span className="text-red-500">*</span>
             </label>
             <Input
               type="number"
@@ -105,7 +105,7 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
                 handleFieldChange('quantity', validValue);
               }}
               disabled={disabled}
-              placeholder="Qty (min: 1)"
+              placeholder="Qty (required, min: 1)"
             />
           </div>
         </Col>
@@ -113,7 +113,7 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
         <Col xs={12} sm={6} md={3}>
           <div className="mb-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Unit Price *
+              Unit Price <span className="text-red-500">*</span>
             </label>
             <Input
               type="number"
@@ -127,7 +127,7 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
                 handleFieldChange('unitPrice', validValue);
               }}
               disabled={disabled}
-              placeholder="Price (min: 1)"
+              placeholder="Price (required, min: 1)"
             />
           </div>
         </Col>
@@ -146,12 +146,12 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
         <Col xs={24} sm={12} md={4}>
           <div className="mb-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              GL Account *
+              GL Account <span className="text-red-500">*</span>
             </label>
             <Select
               value={localData.glAccount}
               onChange={(value) => handleFieldChange('glAccount', value)}
-              placeholder="Select account"
+              placeholder="Select account (required)"
               options={glAccountOptions}
               disabled={disabled}
               style={{ width: '100%' }}
