@@ -1,16 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Space, Card, Typography } from "antd";
 import { LoadingSpinner, MessageBox } from "../components/common/index";
 import { PurchaseOrderSearchFilter } from "../components/purchase-orders/PurchaseOrderSearchFilter";
 import { PurchaseOrderListTable } from "../components/purchase-orders/PurchaseOrderListTable";
+import { GLAccountModal } from "../components/gl-accounts/GLAccountModal";
 import { usePurchaseOrders } from "../hooks/usePurchaseOrders";
 import { QueryPurchaseOrderDto } from "../types/purchaseOrder";
+import { GLAccount } from "../types/glAccount";
 import { useNavigate } from "react-router-dom";
+import { BankOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
 export const PurchaseOrderListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [showGLAccountModal, setShowGLAccountModal] = useState(false);
+  
   const {
     purchaseOrders,
     loading,
@@ -58,6 +63,19 @@ export const PurchaseOrderListPage: React.FC = () => {
     console.log("Export Excel functionality to be implemented");
   };
 
+  const handleManageGLAccounts = () => {
+    setShowGLAccountModal(true);
+  };
+
+  const handleGLAccountModalClose = () => {
+    setShowGLAccountModal(false);
+  };
+
+  const handleGLAccountCreated = (account: GLAccount) => {
+    // Optionally show a success message or refresh related data
+    console.log("GL Account created:", account);
+  };
+
   if (error) {
     return (
       <MessageBox
@@ -78,8 +96,15 @@ export const PurchaseOrderListPage: React.FC = () => {
             Purchase Orders
           </Title>
           <Space>
+            <Button 
+              type="default" 
+              icon={<BankOutlined />}
+              onClick={handleManageGLAccounts}
+            >
+              Manage GL Accounts
+            </Button>
             <Button type="primary" onClick={handleNewPurchaseOrder}>
-              New
+              New Purchase Order
             </Button>
             <Button onClick={handleExportExcel}>Export Excel</Button>
           </Space>
@@ -107,6 +132,13 @@ export const PurchaseOrderListPage: React.FC = () => {
           />
         </div>
       </Card>
+
+      {/* GL Account Modal */}
+      <GLAccountModal
+        visible={showGLAccountModal}
+        onClose={handleGLAccountModalClose}
+        mode="manage"
+      />
     </div>
   );
 };

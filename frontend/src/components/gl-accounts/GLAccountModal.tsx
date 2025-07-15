@@ -1,25 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  Modal,
-  Tabs,
-  Button,
-  Space,
-  Alert,
-} from 'antd';
-import {
-  PlusOutlined,
-  BookOutlined,
-} from '@ant-design/icons';
-import { GLAccount } from '../../types/glAccount';
-import { useGLAccounts } from '../../hooks/useGLAccounts';
-import { GLAccountForm } from './GLAccountForm';
-import { GLAccountList } from './GLAccountList';
+import React, { useState, useEffect, useCallback } from "react";
+import { Modal, Tabs, Button, Space, Alert } from "antd";
+import { PlusOutlined, BookOutlined } from "@ant-design/icons";
+import { GLAccount } from "../../types/glAccount";
+import { useGLAccounts } from "../../hooks/useGLAccounts";
+import { GLAccountForm } from "./GLAccountForm";
+import { GLAccountList } from "./GLAccountList";
 
 interface GLAccountModalProps {
   visible: boolean;
   onClose: () => void;
   onSelect?: (account: GLAccount) => void;
-  mode?: 'select' | 'manage';
+  mode?: "select" | "manage";
   selectedAccountId?: string;
 }
 
@@ -27,13 +18,13 @@ export const GLAccountModal: React.FC<GLAccountModalProps> = ({
   visible,
   onClose,
   onSelect,
-  mode = 'manage',
+  mode = "manage",
   selectedAccountId,
 }) => {
-  const [activeTab, setActiveTab] = useState('list');
+  const [activeTab, setActiveTab] = useState("list");
   const [showForm, setShowForm] = useState(false);
   const [editingAccount, setEditingAccount] = useState<GLAccount | null>(null);
-  const [viewingAccount, setViewingAccount] = useState<GLAccount | null>(null);
+  const [_viewingAccount, setViewingAccount] = useState<GLAccount | null>(null);
 
   const {
     glAccounts,
@@ -48,7 +39,6 @@ export const GLAccountModal: React.FC<GLAccountModalProps> = ({
     getGLAccount,
     clearError,
     setFilters,
-    clearFilters,
   } = useGLAccounts({
     autoFetch: true,
     pageSize: 10,
@@ -73,52 +63,64 @@ export const GLAccountModal: React.FC<GLAccountModalProps> = ({
 
   const handleView = useCallback((account: GLAccount) => {
     setViewingAccount(account);
-    setActiveTab('details');
+    setActiveTab("details");
   }, []);
 
-  const handleDelete = useCallback(async (account: GLAccount) => {
-    try {
-      await deleteGLAccount(account.id);
-      // Refresh the list
-      fetchGLAccounts();
-    } catch (error) {
-      // Error is handled by the hook
-      console.error('Delete failed:', error);
-    }
-  }, [deleteGLAccount, fetchGLAccounts]);
-
-  const handleFormSubmit = useCallback(async (data: any) => {
-    try {
-      if (editingAccount) {
-        await updateGLAccount(editingAccount.id, data);
-      } else {
-        await createGLAccount(data);
+  const handleDelete = useCallback(
+    async (account: GLAccount) => {
+      try {
+        await deleteGLAccount(account.id);
+        // Refresh the list
+        fetchGLAccounts();
+      } catch (error) {
+        // Error is handled by the hook
+        console.error("Delete failed:", error);
       }
-      setShowForm(false);
-      setEditingAccount(null);
-      // Refresh the list
-      fetchGLAccounts();
-    } catch (error) {
-      // Error is handled by the hook
-      console.error('Form submission failed:', error);
-    }
-  }, [editingAccount, updateGLAccount, createGLAccount, fetchGLAccounts]);
+    },
+    [deleteGLAccount, fetchGLAccounts]
+  );
+
+  const handleFormSubmit = useCallback(
+    async (data: any) => {
+      try {
+        if (editingAccount) {
+          await updateGLAccount(editingAccount.id, data);
+        } else {
+          await createGLAccount(data);
+        }
+        setShowForm(false);
+        setEditingAccount(null);
+        // Refresh the list
+        fetchGLAccounts();
+      } catch (error) {
+        // Error is handled by the hook
+        console.error("Form submission failed:", error);
+      }
+    },
+    [editingAccount, updateGLAccount, createGLAccount, fetchGLAccounts]
+  );
 
   const handleFormCancel = useCallback(() => {
     setShowForm(false);
     setEditingAccount(null);
   }, []);
 
-  const handleSelectAccount = useCallback((account: GLAccount) => {
-    if (onSelect) {
-      onSelect(account);
-      onClose();
-    }
-  }, [onSelect, onClose]);
+  const handleSelectAccount = useCallback(
+    (account: GLAccount) => {
+      if (onSelect) {
+        onSelect(account);
+        onClose();
+      }
+    },
+    [onSelect, onClose]
+  );
 
-  const handleFiltersChange = useCallback((newFilters: any) => {
-    setFilters(newFilters);
-  }, [setFilters]);
+  const handleFiltersChange = useCallback(
+    (newFilters: any) => {
+      setFilters(newFilters);
+    },
+    [setFilters]
+  );
 
   const handleRefresh = useCallback(() => {
     fetchGLAccounts();
@@ -127,7 +129,7 @@ export const GLAccountModal: React.FC<GLAccountModalProps> = ({
   const getTabItems = useCallback(() => {
     const items = [
       {
-        key: 'list',
+        key: "list",
         label: (
           <span>
             <BookOutlined />
@@ -143,23 +145,35 @@ export const GLAccountModal: React.FC<GLAccountModalProps> = ({
             onEdit={handleEdit}
             onView={handleView}
             onDelete={handleDelete}
-            onSelect={mode === 'select' ? handleSelectAccount : undefined}
+            onSelect={mode === "select" ? handleSelectAccount : undefined}
             onFiltersChange={handleFiltersChange}
             onRefresh={handleRefresh}
-            showActions={mode === 'manage'}
+            showActions={mode === "manage"}
           />
         ),
       },
     ];
 
     return items;
-  }, [glAccounts, loading, pagination, filters, handleEdit, handleView, handleDelete, handleSelectAccount, handleFiltersChange, handleRefresh, mode]);
+  }, [
+    glAccounts,
+    loading,
+    pagination,
+    filters,
+    handleEdit,
+    handleView,
+    handleDelete,
+    handleSelectAccount,
+    handleFiltersChange,
+    handleRefresh,
+    mode,
+  ]);
 
   const renderModalTitle = useCallback(() => {
     if (showForm) {
-      return editingAccount ? 'Edit GL Account' : 'Create New GL Account';
+      return editingAccount ? "Edit GL Account" : "Create New GL Account";
     }
-    return mode === 'select' ? 'Select GL Account' : 'GL Account Management';
+    return mode === "select" ? "Select GL Account" : "GL Account Management";
   }, [showForm, editingAccount, mode]);
 
   const renderModalFooter = useCallback(() => {
@@ -170,8 +184,12 @@ export const GLAccountModal: React.FC<GLAccountModalProps> = ({
     return (
       <Space>
         <Button onClick={onClose}>Close</Button>
-        {mode === 'manage' && (
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateNew}>
+        {mode === "manage" && (
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleCreateNew}
+          >
             Create New Account
           </Button>
         )}
@@ -221,4 +239,4 @@ export const GLAccountModal: React.FC<GLAccountModalProps> = ({
       )}
     </Modal>
   );
-}; 
+};

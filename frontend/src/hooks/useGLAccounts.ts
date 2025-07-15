@@ -254,7 +254,8 @@ export const useGLAccounts = (
         const updatedFilters = {
           ...prev,
           ...newFilters,
-          page: 1, // Reset to first page when filters change
+          // Only reset page to 1 if it's not explicitly provided in newFilters
+          page: newFilters.page !== undefined ? newFilters.page : 1,
         };
         return updatedFilters;
       });
@@ -282,8 +283,8 @@ export const useGLAccounts = (
   const setPageSize = useCallback((size: number) => {
     setFiltersState((prev) => ({
       ...prev,
-      pageSize: size,
-      page: 1,
+      limit: size,
+      page: 1, // Reset to first page when page size changes
     }));
   }, []);
 
