@@ -38,7 +38,7 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
       callback(...args);
     }, delay);
 
-    setTimeoutId(newTimeoutId);
+    setTimeoutId(newTimeoutId as unknown as number);
   }) as T;
 
   // Cleanup on unmount
@@ -154,7 +154,7 @@ export function useDebouncedResize(delay: number = 100) {
   });
 
   useEffect(() => {
-    let timeoutId: number;
+      let timeoutId: NodeJS.Timeout;
 
     const handleResize = () => {
       clearTimeout(timeoutId);
@@ -187,7 +187,7 @@ export function useDebouncedScroll(delay: number = 100) {
   });
 
   useEffect(() => {
-    let timeoutId: number;
+    let timeoutId: NodeJS.Timeout;
 
     const handleScroll = () => {
       clearTimeout(timeoutId);
