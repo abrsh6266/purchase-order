@@ -24,11 +24,11 @@ CREATE TABLE `purchase_orders` (
 CREATE TABLE `purchase_order_line_items` (
     `id` VARCHAR(191) NOT NULL,
     `purchaseOrderId` VARCHAR(191) NOT NULL,
-    `itemName` VARCHAR(255) NOT NULL,
+    `item` VARCHAR(255) NOT NULL,
     `quantity` DECIMAL(10, 2) NOT NULL,
     `unitPrice` DECIMAL(10, 2) NOT NULL,
     `description` TEXT NULL,
-    `glAccountName` VARCHAR(255) NOT NULL,
+    `glAccount` VARCHAR(255) NOT NULL,
     `amount` DECIMAL(10, 2) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
