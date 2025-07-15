@@ -93,10 +93,8 @@ export interface QueryPurchaseOrderDto {
   limit?: number;
   search?: string;
   status?: PurchaseOrderStatus;
-  vendorName?: string;
-  poNumber?: string;
   startDate?: string;
   endDate?: string;
-  sortBy?: keyof PurchaseOrder;
+  sortBy?: 'createdAt' | 'poDate' | 'poNumber' | 'vendorName' | 'totalAmount' | 'status';
   sortOrder?: 'asc' | 'desc';
 } 

@@ -4,19 +4,29 @@ import { PurchaseOrder } from '../../types/purchaseOrder';
 import { PurchaseOrderStatus } from '../../types/common';
 import { formatDate } from '../../utils/dateUtils';
 import { formatCurrency } from '../../utils/numberUtils';
+import { QueryPurchaseOrderDto } from '../../types/purchaseOrder';
 
 interface PurchaseOrderListTableProps {
   data: PurchaseOrder[];
   loading?: boolean;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  onTableChange?: (pagination: any, filters: any, sorter: any) => void;
+  pagination?: {
+    current: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export const PurchaseOrderListTable: React.FC<PurchaseOrderListTableProps> = ({
   data,
   loading = false,
   onEdit,
-  onDelete
+  onDelete,
+  onTableChange,
+  pagination
 }) => {
   const getStatusColor = (status: PurchaseOrderStatus) => {
     const statusColors: Record<PurchaseOrderStatus, string> = {
@@ -115,14 +125,17 @@ export const PurchaseOrderListTable: React.FC<PurchaseOrderListTableProps> = ({
       dataSource={data}
       loading={loading}
       rowKey="id"
-      pagination={{
+      onChange={onTableChange}
+      pagination={pagination ? {
+        current: pagination.current,
+        pageSize: pagination.pageSize,
+        total: pagination.total,
         showSizeChanger: true,
         showQuickJumper: true,
         showTotal: (total, range) =>
           `${range[0]}-${range[1]} of ${total} items`,
         pageSizeOptions: ['10', '20', '50', '100'],
-        defaultPageSize: 10,
-      }}
+      } : false}
       scroll={{ x: 800 }}
     />
   );

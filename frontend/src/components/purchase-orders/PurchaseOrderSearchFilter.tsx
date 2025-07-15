@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Input, DatePicker, Select, Space, Card } from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
+import { Input, DatePicker, Select, Space, Card, Button } from 'antd';
 import { QueryPurchaseOrderDto } from '../../types/purchaseOrder';
 import { PurchaseOrderStatus } from '../../types/common';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -9,11 +9,13 @@ const { RangePicker } = DatePicker;
 interface PurchaseOrderSearchFilterProps {
   onFilterChange: (filters: Partial<QueryPurchaseOrderDto>) => void;
   filters: QueryPurchaseOrderDto;
+  onClearFilters?: () => void;
 }
 
 export const PurchaseOrderSearchFilter: React.FC<PurchaseOrderSearchFilterProps> = ({
   onFilterChange,
-  filters
+  filters,
+  onClearFilters
 }) => {
   const [searchTerm, setSearchTerm] = useState(filters.search || '');
   const [dateRange, setDateRange] = useState<[string, string] | null>(
@@ -24,24 +26,39 @@ export const PurchaseOrderSearchFilter: React.FC<PurchaseOrderSearchFilterProps>
   );
 
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const prevFiltersRef = useRef({ debouncedSearchTerm, dateRange, statusFilter });
 
   useEffect(() => {
-    const newFilters: Partial<QueryPurchaseOrderDto> = {};
+    const prevFilters = prevFiltersRef.current;
+    const currentFilters = { debouncedSearchTerm, dateRange, statusFilter };
     
-    if (debouncedSearchTerm) {
-      newFilters.search = debouncedSearchTerm;
-    }
-    
-    if (dateRange) {
-      newFilters.startDate = dateRange[0];
-      newFilters.endDate = dateRange[1];
-    }
-    
-    if (statusFilter) {
-      newFilters.status = statusFilter;
-    }
+    // Check if any filter actually changed
+    const hasChanged = 
+      prevFilters.debouncedSearchTerm !== debouncedSearchTerm ||
+      JSON.stringify(prevFilters.dateRange) !== JSON.stringify(dateRange) ||
+      prevFilters.statusFilter !== statusFilter;
 
-    onFilterChange(newFilters);
+    if (hasChanged) {
+      console.log('Filter changed:', { debouncedSearchTerm, dateRange, statusFilter });
+      const newFilters: Partial<QueryPurchaseOrderDto> = {};
+      
+      if (debouncedSearchTerm) {
+        newFilters.search = debouncedSearchTerm;
+      }
+      
+      if (dateRange) {
+        newFilters.startDate = dateRange[0];
+        newFilters.endDate = dateRange[1];
+      }
+      
+      if (statusFilter) {
+        newFilters.status = statusFilter;
+      }
+
+      console.log('Calling onFilterChange with:', newFilters);
+      onFilterChange(newFilters);
+      prevFiltersRef.current = currentFilters;
+    }
   }, [debouncedSearchTerm, dateRange, statusFilter]); // Remove onFilterChange from dependencies
 
   const handleSearchChange = (value: string) => {
@@ -56,6 +73,13 @@ export const PurchaseOrderSearchFilter: React.FC<PurchaseOrderSearchFilterProps>
     setStatusFilter(value);
   };
 
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setDateRange(null);
+    setStatusFilter(undefined);
+    onClearFilters?.();
+  };
+
   const statusOptions = Object.entries(PurchaseOrderStatus).map(([key, value]) => ({
     label: value,
     value: value
@@ -63,7 +87,7 @@ export const PurchaseOrderSearchFilter: React.FC<PurchaseOrderSearchFilterProps>
 
   return (
     <Card size="small">
-      <Space wrap className="w-full">
+      <Space wrap className="w-full" align="center">
         <Input.Search
           placeholder="Search PO Number, Vendor, or Customer SO..."
           value={searchTerm}
@@ -86,6 +110,13 @@ export const PurchaseOrderSearchFilter: React.FC<PurchaseOrderSearchFilterProps>
           style={{ width: 150 }}
           options={statusOptions}
         />
+
+        <Button 
+          onClick={handleClearFilters}
+          type="default"
+        >
+          Clear Filters
+        </Button>
       </Space>
     </Card>
   );

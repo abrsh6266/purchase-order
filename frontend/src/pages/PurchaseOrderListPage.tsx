@@ -21,6 +21,8 @@ export const PurchaseOrderListPage: React.FC = () => {
     deletePurchaseOrder,
     setFilters,
     clearError,
+    handleTableChange,
+    clearFilters,
   } = usePurchaseOrders({
     initialFilters: {
       page: 1,
@@ -88,6 +90,7 @@ export const PurchaseOrderListPage: React.FC = () => {
           <PurchaseOrderSearchFilter
             onFilterChange={handleFilterChange}
             filters={filters}
+            onClearFilters={clearFilters}
           />
         </div>
 
@@ -99,6 +102,8 @@ export const PurchaseOrderListPage: React.FC = () => {
             loading={loading}
             onEdit={handleEditPurchaseOrder}
             onDelete={handleDeletePurchaseOrder}
+            pagination={pagination}
+            onTableChange={handleTableChange}
           />
         </div>
       </Card>

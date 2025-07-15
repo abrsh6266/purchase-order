@@ -89,6 +89,9 @@ export interface UsePurchaseOrdersReturn {
   // Error handling
   clearError: () => void;
 
+  // Table changes
+  handleTableChange: (pagination: any, filters: any, sorter: any) => void;
+
   // Computed values
   totalAmount: number;
   statusCounts: Record<PurchaseOrderStatus, number>;
@@ -163,8 +166,8 @@ export const usePurchaseOrders = (
         setLoading(false);
       }
     },
-    []
-  ); // Remove dependencies to prevent infinite loop
+    [filters, searchTerm]
+  );
 
   // Create purchase order
   const createPurchaseOrder = useCallback(
@@ -275,23 +278,49 @@ export const usePurchaseOrders = (
   // Set filters
   const setFilters = useCallback(
     (newFilters: Partial<QueryPurchaseOrderDto>) => {
-      setFiltersState((prev) => ({
-        ...prev,
-        ...newFilters,
-        page: 1, // Reset to first page when filters change
-      }));
+      console.log('setFilters called with:', newFilters);
+      setFiltersState((prev) => {
+        const updatedFilters = {
+          ...prev,
+          ...newFilters,
+          page: 1, // Reset to first page when filters change
+        };
+        
+        console.log('Updated filters:', updatedFilters);
+        
+        // Trigger fetch with updated filters
+        if (autoFetch) {
+          setTimeout(() => {
+            console.log('Triggering fetchPurchaseOrders with:', updatedFilters);
+            fetchPurchaseOrders(updatedFilters);
+          }, 0);
+        }
+        
+        return updatedFilters;
+      });
     },
-    []
+    [autoFetch, fetchPurchaseOrders]
   );
 
   // Set search term
   const setSearchTerm = useCallback((term: string) => {
     setSearchTermState(term);
-    setFiltersState((prev) => ({
-      ...prev,
-      page: 1, // Reset to first page when search changes
-    }));
-  }, []);
+    setFiltersState((prev) => {
+      const updatedFilters = {
+        ...prev,
+        page: 1, // Reset to first page when search changes
+      };
+      
+      // Trigger fetch with updated search term
+      if (autoFetch) {
+        setTimeout(() => {
+          fetchPurchaseOrders({ ...updatedFilters, search: term });
+        }, 0);
+      }
+      
+      return updatedFilters;
+    });
+  }, [autoFetch, fetchPurchaseOrders]);
 
   // Clear filters
   const clearFilters = useCallback(() => {
@@ -329,6 +358,25 @@ export const usePurchaseOrders = (
     setError(null);
   }, []);
 
+  // Handle table changes (sorting, pagination)
+  const handleTableChange = useCallback((pagination: any, filters: any, sorter: any) => {
+    const newFilters: Partial<QueryPurchaseOrderDto> = {};
+    
+    // Handle pagination
+    if (pagination) {
+      newFilters.page = pagination.current;
+      newFilters.limit = pagination.pageSize;
+    }
+    
+    // Handle sorting
+    if (sorter && sorter.field) {
+      newFilters.sortBy = sorter.field;
+      newFilters.sortOrder = sorter.order === 'descend' ? 'desc' : 'asc';
+    }
+    
+    setFilters(newFilters);
+  }, [setFilters]);
+
   // Computed values
   const totalAmount = useMemo(() => {
     return purchaseOrders.reduce((sum, po) => sum + po.totalAmount, 0);
@@ -365,32 +413,7 @@ export const usePurchaseOrders = (
     if (autoFetch) {
       fetchPurchaseOrders();
     }
-  }, [autoFetch]); // Remove fetchPurchaseOrders dependency
-
-  // Fetch when filters or search term change (but not on initial mount)
-  const isInitialMount = useRef(true);
-  const prevFiltersRef = useRef(filters);
-  const prevSearchTermRef = useRef(searchTerm);
-
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      prevFiltersRef.current = filters;
-      prevSearchTermRef.current = searchTerm;
-      return;
-    }
-
-    // Only fetch if filters or search term actually changed
-    const filtersChanged =
-      JSON.stringify(prevFiltersRef.current) !== JSON.stringify(filters);
-    const searchTermChanged = prevSearchTermRef.current !== searchTerm;
-
-    if ((filtersChanged || searchTermChanged) && autoFetch) {
-      fetchPurchaseOrders();
-      prevFiltersRef.current = filters;
-      prevSearchTermRef.current = searchTerm;
-    }
-  }, [filters, searchTerm, autoFetch]); // This will trigger when filters/search change
+  }, [autoFetch, fetchPurchaseOrders]);
 
   // Update pagination when filters change
   useEffect(() => {
@@ -447,6 +470,9 @@ export const usePurchaseOrders = (
 
     // Error handling
     clearError,
+
+    // Table changes
+    handleTableChange,
 
     // Computed values
     totalAmount,

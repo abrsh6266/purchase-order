@@ -112,7 +112,10 @@ export class PurchaseOrdersService {
         const sortBy = query.sortBy || 'createdAt';
         const sortOrder = query.sortOrder || 'desc';
         
-        orderBy[sortBy] = sortOrder;
+        // Validate and map frontend sort fields to database fields
+        const validSortFields = ['createdAt', 'poDate', 'poNumber', 'vendorName', 'totalAmount', 'status'];
+        const dbSortField = validSortFields.includes(sortBy) ? sortBy : 'createdAt';
+        orderBy[dbSortField] = sortOrder;
 
         // Get total count for pagination
         const total = await this.prisma.purchaseOrder.count({ where });
