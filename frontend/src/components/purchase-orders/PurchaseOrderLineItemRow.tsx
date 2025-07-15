@@ -67,9 +67,9 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
   ];
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 mb-4 bg-gray-50">
-      <Row gutter={16} align="middle">
-        <Col span={6}>
+    <div className="border border-gray-200 rounded-lg p-3 md:p-4 mb-3 md:mb-4 bg-gray-50">
+      <Row gutter={[16, 16]} align="middle">
+        <Col xs={24} sm={12} md={6}>
           <div className="mb-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Item *
@@ -89,7 +89,7 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
           </div>
         </Col>
 
-        <Col span={3}>
+        <Col xs={12} sm={6} md={3}>
           <div className="mb-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Quantity *
@@ -105,12 +105,12 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
                 handleFieldChange('quantity', validValue);
               }}
               disabled={disabled}
-              placeholder="Enter quantity (min: 1)"
+              placeholder="Qty (min: 1)"
             />
           </div>
         </Col>
 
-        <Col span={3}>
+        <Col xs={12} sm={6} md={3}>
           <div className="mb-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Unit Price *
@@ -127,23 +127,23 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
                 handleFieldChange('unitPrice', validValue);
               }}
               disabled={disabled}
-              placeholder="Enter unit price (min: 1)"
+              placeholder="Price (min: 1)"
             />
           </div>
         </Col>
 
-        <Col span={4}>
+        <Col xs={24} sm={12} md={4}>
           <div className="mb-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Amount
             </label>
-            <div className="p-2 bg-white border border-gray-300 rounded text-sm font-medium">
+            <div className="p-2 bg-white border border-gray-300 rounded text-sm font-medium text-center">
               {formatCurrency(amount)}
             </div>
           </div>
         </Col>
 
-        <Col span={4}>
+        <Col xs={24} sm={12} md={4}>
           <div className="mb-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               GL Account *
@@ -163,7 +163,7 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
           </div>
         </Col>
 
-        <Col span={3}>
+        <Col xs={24} sm={24} md={3}>
           <div className="mb-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Actions
@@ -181,7 +181,7 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
         </Col>
       </Row>
 
-      <Row gutter={16}>
+      <Row gutter={[16, 16]}>
         <Col span={24}>
           <div className="mb-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">

@@ -311,44 +311,44 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     <Form
       form={form}
       layout="vertical"
-      className="space-y-6"
+      className="space-y-4 md:space-y-6"
       onValuesChange={handleFormChange}
     >
-      {/* Display form validation errors */}
-      {formError && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <div className="flex items-start">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">
-                Form Validation Error
-              </h3>
-              <div className="mt-2 text-sm text-red-700 whitespace-pre-line">
-                {formError}
-              </div>
-              <div className="mt-3">
-                <button
-                  type="button"
-                  onClick={() => setFormError(null)}
-                  className="text-sm text-red-600 hover:text-red-500 font-medium"
-                >
-                  Dismiss
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+             {/* Display form validation errors */}
+       {formError && (
+         <div className="mb-4 p-3 md:p-4 bg-red-50 border border-red-200 rounded-lg">
+           <div className="flex items-start">
+             <div className="flex-shrink-0">
+               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+               </svg>
+             </div>
+             <div className="ml-3 flex-1">
+               <h3 className="text-sm font-medium text-red-800">
+                 Form Validation Error
+               </h3>
+               <div className="mt-2 text-sm text-red-700 whitespace-pre-line break-words">
+                 {formError}
+               </div>
+               <div className="mt-3">
+                 <button
+                   type="button"
+                   onClick={() => setFormError(null)}
+                   className="text-sm text-red-600 hover:text-red-500 font-medium"
+                 >
+                   Dismiss
+                 </button>
+               </div>
+             </div>
+           </div>
+         </div>
+       )}
 
-      <Card title="Purchase Order Details" className="mb-6">
-        <Row gutter={16}>
-          <Col span={12}>
+      <Card title="Purchase Order Details" className="mb-4 md:mb-6">
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
-              label="Vendor"
+              label={<span className="text-sm font-medium">Vendor</span>}
               name="vendorName"
               validateStatus={
                 errors.vendorName && touched.vendorName ? "error" : ""
@@ -367,15 +367,15 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="One Time Vendor" name="oneTimeVendor">
               <Input placeholder="Enter one-time vendor name" />
             </Form.Item>
           </Col>
         </Row>
 
-        <Row gutter={16}>
-          <Col span={8}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12} md={8}>
             <Form.Item
               label="PO Date"
               name="poDate"
@@ -388,7 +388,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
               />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col xs={24} sm={12} md={8}>
             <Form.Item
               label="PO Number"
               name="poNumber"
@@ -402,20 +402,20 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
               <Input placeholder="Enter PO number" />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col xs={24} sm={24} md={8}>
             <Form.Item label="Customer SO" name="customerSO">
               <Input placeholder="Enter customer SO" />
             </Form.Item>
           </Col>
         </Row>
 
-        <Row gutter={16}>
-          <Col span={8}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12} md={8}>
             <Form.Item label="Customer Invoice" name="customerInvoice">
               <Input placeholder="Enter customer invoice" />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col xs={24} sm={12} md={8}>
             <Form.Item
               label="AP Account"
               name="apAccount"
@@ -432,7 +432,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
               />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col xs={24} sm={24} md={8}>
             <Form.Item
               label="Transaction Type"
               name="transactionType"
@@ -453,8 +453,8 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
           </Col>
         </Row>
 
-        <Row gutter={16}>
-          <Col span={12}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12}>
             <Form.Item label="Transaction Origin" name="transactionOrigin">
               <Select
                 placeholder="Select transaction origin"
@@ -463,7 +463,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12}>
             <Form.Item label="Ship Via" name="shipVia">
               <Select
                 placeholder="Select shipping method"
@@ -475,19 +475,19 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         </Row>
       </Card>
 
-      <Card
+            <Card 
         title={
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
             <span>Line Items</span>
-            <Button type="dashed" onClick={handleAddLineItem}>
+            <Button type="dashed" onClick={handleAddLineItem} className="w-full sm:w-auto">
               Add Line Item
             </Button>
           </div>
         }
-        className="mb-6"
+        className="mb-4 md:mb-6"
       >
         {lineItems.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-6 md:py-8 text-gray-500">
             <p>No line items added yet.</p>
             <p className="text-sm">
               Click "Add Line Item" to start adding items to this purchase
@@ -508,36 +508,43 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         )}
       </Card>
 
-      <Card className="mb-6">
-        <div className="text-right">
-          <Title level={4}>Total Amount: {formatCurrency(totalAmount)}</Title>
+      <Card className="mb-4 md:mb-6">
+        <div className="text-center sm:text-right">
+          <Title level={4} className="text-lg sm:text-xl">
+            Total Amount: {formatCurrency(totalAmount)}
+          </Title>
         </div>
       </Card>
 
-      <div className="flex justify-between">
-        <Space>
-          <Button onClick={onCancel} disabled={loading}>
+            <div className="flex flex-col sm:flex-row justify-between gap-4">
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button onClick={onCancel} disabled={loading} className="w-full sm:w-auto">
             Cancel
           </Button>
           {isEditing && onDelete && (
-            <Button danger onClick={onDelete} disabled={loading}>
+            <Button danger onClick={onDelete} disabled={loading} className="w-full sm:w-auto">
               Delete
             </Button>
           )}
-        </Space>
-
-        <Space>
-          <Button
-            type="primary"
+        </div>
+        
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button 
+            type="primary" 
             onClick={() => handleSubmit("save")}
             loading={loading}
+            className="w-full sm:w-auto"
           >
             Save
           </Button>
-          <Button onClick={() => handleSubmit("saveAndNew")} loading={loading}>
+          <Button 
+            onClick={() => handleSubmit("saveAndNew")} 
+            loading={loading}
+            className="w-full sm:w-auto"
+          >
             Save & New
           </Button>
-        </Space>
+        </div>
       </div>
     </Form>
   );

@@ -119,10 +119,10 @@ export const PurchaseOrderFormPage: React.FC<PurchaseOrderFormPageProps> = ({
   // Don't show full-page error for validation errors, show them inline instead
 
   return (
-    <div className="p-6">
+    <div className="p-2 sm:p-4 md:p-6">
       <Card>
-        <div className="mb-6">
-          <Title level={2}>
+        <div className="mb-4 md:mb-6">
+          <Title level={2} className="text-lg sm:text-xl md:text-2xl">
             {isEditing ? "Edit Purchase Order" : "New Purchase Order"}
           </Title>
         </div>
