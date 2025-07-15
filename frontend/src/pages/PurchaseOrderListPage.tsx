@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Space, Card, Row, Col, Statistic, Badge } from "antd";
+import { Button, Space, Card, Row, Col, Statistic, Badge, message } from "antd";
 import {
   PlusOutlined,
   FileExcelOutlined,
@@ -19,11 +19,13 @@ import { QueryPurchaseOrderDto } from "../types/purchaseOrder";
 import { GLAccount } from "../types/glAccount";
 import { useNavigate } from "react-router-dom";
 import { formatCurrency } from "../utils/numberUtils";
+import { formatDate } from "../utils/dateUtils";
 
 export const PurchaseOrderListPage: React.FC = () => {
   const navigate = useNavigate();
   const [showGLAccountModal, setShowGLAccountModal] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const {
     purchaseOrders,
@@ -66,8 +68,84 @@ export const PurchaseOrderListPage: React.FC = () => {
     }
   };
 
-  const handleExportExcel = () => {
-    console.log("Export Excel functionality to be implemented");
+  const handleExportExcel = async () => {
+    setExporting(true);
+    try {
+      // Create workbook and worksheet
+      const XLSX = await import('xlsx');
+      const workbook = XLSX.utils.book_new();
+      
+      // Prepare data for export
+      const exportData = purchaseOrders.map((po) => ({
+        'PO Number': po.poNumber,
+        'Vendor Name': po.vendorName,
+        'PO Date': po.poDate ? formatDate(po.poDate) : '',
+        'Customer SO': po.customerSO || '',
+        'Customer Invoice': po.customerInvoice || '',
+        'AP Account': po.apAccount || '',
+        'Transaction Type': po.transactionType || '',
+        'Transaction Origin': po.transactionOrigin || '',
+        'Ship Via': po.shipVia || '',
+        'Status': po.status,
+        'Total Amount': po.totalAmount ? formatCurrency(po.totalAmount) : '$0.00',
+        'Line Items Count': po.lineItems?.length || 0,
+        'Created Date': formatDate(po.createdAt),
+        'Last Updated': formatDate(po.updatedAt),
+      }));
+
+      // Create worksheet
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+      // Set column widths
+      const columnWidths = [
+        { wch: 15 }, // PO Number
+        { wch: 25 }, // Vendor Name
+        { wch: 12 }, // PO Date
+        { wch: 15 }, // Customer SO
+        { wch: 18 }, // Customer Invoice
+        { wch: 20 }, // AP Account
+        { wch: 15 }, // Transaction Type
+        { wch: 18 }, // Transaction Origin
+        { wch: 15 }, // Ship Via
+        { wch: 12 }, // Status
+        { wch: 15 }, // Total Amount
+        { wch: 15 }, // Line Items Count
+        { wch: 12 }, // Created Date
+        { wch: 12 }, // Last Updated
+      ];
+      worksheet['!cols'] = columnWidths;
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Purchase Orders');
+
+      // Create summary sheet
+      const summaryData = [
+        { 'Metric': 'Total Purchase Orders', 'Value': statistics.total },
+        { 'Metric': 'Draft Orders', 'Value': statistics.draftCount },
+        { 'Metric': 'Submitted Orders', 'Value': statistics.submittedCount },
+        { 'Metric': 'Total Value', 'Value': formatCurrency(parseFloat(statistics.totalAmount)) },
+        { 'Metric': 'Export Date', 'Value': new Date().toLocaleDateString() },
+        { 'Metric': 'Export Time', 'Value': new Date().toLocaleTimeString() },
+      ];
+
+      const summaryWorksheet = XLSX.utils.json_to_sheet(summaryData);
+      summaryWorksheet['!cols'] = [{ wch: 25 }, { wch: 20 }];
+      XLSX.utils.book_append_sheet(workbook, summaryWorksheet, 'Summary');
+
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+      const filename = `purchase_orders_export_${timestamp}.xlsx`;
+
+      // Save file
+      XLSX.writeFile(workbook, filename);
+
+      message.success(`Export completed! File saved as ${filename}`);
+    } catch (error) {
+      console.error('Export failed:', error);
+      message.error('Export failed. Please try again.');
+    } finally {
+      setExporting(false);
+    }
   };
 
   const handleManageGLAccounts = () => {
@@ -159,7 +237,7 @@ export const PurchaseOrderListPage: React.FC = () => {
       </div>
 
       {/* Search & Filter Section */}
-      <Card
+      <Card 
         className="mb-6 filter-section"
         size="small"
         title={
@@ -202,7 +280,7 @@ export const PurchaseOrderListPage: React.FC = () => {
       </Card>
 
       {/* Table Section */}
-      <Card
+      <Card 
         className="table-section"
         title={
           <div className="flex items-center justify-between">
@@ -211,9 +289,11 @@ export const PurchaseOrderListPage: React.FC = () => {
               <Button
                 icon={<FileExcelOutlined />}
                 onClick={handleExportExcel}
+                loading={exporting}
+                disabled={purchaseOrders.length === 0}
                 size="small"
               >
-                Export Excel
+                {exporting ? "Exporting..." : "Export Excel"}
               </Button>
             </Space>
           </div>

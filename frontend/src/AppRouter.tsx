@@ -25,11 +25,11 @@ const PurchaseOrderFormWithLayout: React.FC = () => {
     <AppLayout
       pageTitle={isNew ? "Create Purchase Order" : "Edit Purchase Order"}
       pageSubtitle={
-        isNew ? "Create a new purchase order" : `Edit purchase order #${id}`
+        isNew ? "Create a new purchase order" : `Edit purchase order`
       }
       breadcrumb={[
         { title: "Purchase Orders", path: "/purchase-orders" },
-        { title: isNew ? "Create New" : `Edit #${id}` },
+        { title: isNew ? "Create New" : `Edit` },
       ]}
     >
       <PurchaseOrderFormPage
