@@ -1,20 +1,16 @@
-import React from 'react';
-import { Button, Space, Card, Typography } from 'antd';
-import { LoadingSpinner, MessageBox } from '../components/common/index';
-import { PurchaseOrderSearchFilter } from '../components/purchase-orders/PurchaseOrderSearchFilter';
-import { PurchaseOrderListTable } from '../components/purchase-orders/PurchaseOrderListTable';
-import { usePurchaseOrders } from '../hooks/usePurchaseOrders';
-import { QueryPurchaseOrderDto } from '../types/purchaseOrder';
+import React from "react";
+import { Button, Space, Card, Typography } from "antd";
+import { LoadingSpinner, MessageBox } from "../components/common/index";
+import { PurchaseOrderSearchFilter } from "../components/purchase-orders/PurchaseOrderSearchFilter";
+import { PurchaseOrderListTable } from "../components/purchase-orders/PurchaseOrderListTable";
+import { usePurchaseOrders } from "../hooks/usePurchaseOrders";
+import { QueryPurchaseOrderDto } from "../types/purchaseOrder";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
-interface PurchaseOrderListPageProps {
-  onNavigateToForm?: (id?: string) => void;
-}
-
-export const PurchaseOrderListPage: React.FC<PurchaseOrderListPageProps> = ({
-  onNavigateToForm
-}) => {
+export const PurchaseOrderListPage: React.FC = () => {
+  const navigate = useNavigate();
   const {
     purchaseOrders,
     loading,
@@ -39,11 +35,11 @@ export const PurchaseOrderListPage: React.FC<PurchaseOrderListPageProps> = ({
   };
 
   const handleNewPurchaseOrder = () => {
-    onNavigateToForm?.();
+    navigate("/purchase-orders/new");
   };
 
   const handleEditPurchaseOrder = (id: string) => {
-    onNavigateToForm?.(id);
+    navigate(`/purchase-orders/${id}`);
   };
 
   const handleDeletePurchaseOrder = async (id: string) => {
@@ -51,13 +47,13 @@ export const PurchaseOrderListPage: React.FC<PurchaseOrderListPageProps> = ({
       await deletePurchaseOrder(id);
     } catch (err) {
       // Error is already handled by the hook
-      console.error('Delete failed:', err);
+      console.error("Delete failed:", err);
     }
   };
 
   const handleExportExcel = () => {
     // Placeholder for export functionality
-    console.log('Export Excel functionality to be implemented');
+    console.log("Export Excel functionality to be implemented");
   };
 
   if (error) {
@@ -76,19 +72,14 @@ export const PurchaseOrderListPage: React.FC<PurchaseOrderListPageProps> = ({
       <Card>
         {/* Header Section */}
         <div className="flex justify-between items-center mb-6">
-          <Title level={2} className="mb-0">Purchase Orders</Title>
+          <Title level={2} className="mb-0">
+            Purchase Orders
+          </Title>
           <Space>
-            <Button
-              type="primary"
-              onClick={handleNewPurchaseOrder}
-            >
+            <Button type="primary" onClick={handleNewPurchaseOrder}>
               New
             </Button>
-            <Button
-              onClick={handleExportExcel}
-            >
-              Export Excel
-            </Button>
+            <Button onClick={handleExportExcel}>Export Excel</Button>
           </Space>
         </div>
 
@@ -113,4 +104,4 @@ export const PurchaseOrderListPage: React.FC<PurchaseOrderListPageProps> = ({
       </Card>
     </div>
   );
-}; 
+};

@@ -1,20 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, DatePicker, Button, Space, Card, Divider, Typography, Row, Col } from 'antd';
-import { PurchaseOrder, CreatePurchaseOrderDto, UpdatePurchaseOrderDto, CreatePurchaseOrderLineItemDto, PurchaseOrderLineItem } from '../../types/purchaseOrder';
-import { TransactionType, TransactionOrigin, ShipVia, PurchaseOrderStatus } from '../../types/common';
-import { PurchaseOrderLineItemRow } from './PurchaseOrderLineItemRow';
-import { formatCurrency } from '../../utils/numberUtils';
-import { formatDateForAPI } from '../../utils/dateUtils';
-import { useFormValidation } from '../../hooks/useFormValidation';
+import React, { useState, useEffect } from "react";
+import {
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  Button,
+  Space,
+  Card,
+  Typography,
+  Row,
+  Col,
+} from "antd";
+import {
+  PurchaseOrder,
+  CreatePurchaseOrderDto,
+  UpdatePurchaseOrderDto,
+  CreatePurchaseOrderLineItemDto,
+  PurchaseOrderLineItem,
+} from "../../types/purchaseOrder";
+import {
+  TransactionType,
+  TransactionOrigin,
+  ShipVia,
+} from "../../types/common";
+import { PurchaseOrderLineItemRow } from "./PurchaseOrderLineItemRow";
+import { formatCurrency } from "../../utils/numberUtils";
+import { formatDateForAPI } from "../../utils/dateUtils";
+import { useFormValidation } from "../../hooks/useFormValidation";
+import dayjs from "dayjs";
 
-const { TextArea } = Input;
 const { Title } = Typography;
+
+interface LineItemWithId extends CreatePurchaseOrderLineItemDto {
+  id: string;
+}
 
 interface PurchaseOrderFormProps {
   initialData?: PurchaseOrder | null;
   isEditing?: boolean;
-  onSave: (data: CreatePurchaseOrderDto | UpdatePurchaseOrderDto) => void;
-  onSaveAndNew: (data: CreatePurchaseOrderDto | UpdatePurchaseOrderDto) => void;
+  onSave: (
+    data: CreatePurchaseOrderDto | UpdatePurchaseOrderDto
+  ) => Promise<void>;
+  onSaveAndNew: (
+    data: CreatePurchaseOrderDto | UpdatePurchaseOrderDto
+  ) => Promise<void>;
   onDelete?: () => void;
   onCancel?: () => void;
   loading?: boolean;
@@ -27,21 +56,63 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
   onSaveAndNew,
   onDelete,
   onCancel,
-  loading = false
+  loading = false,
 }) => {
   const [form] = Form.useForm();
-  const [lineItems, setLineItems] = useState<CreatePurchaseOrderLineItemDto[]>([]);
+  const [lineItems, setLineItems] = useState<LineItemWithId[]>([]);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  // Form validation is handled by Ant Design Form component
+  // Initialize form validation
+  const {
+    values,
+    errors,
+    touched,
+    isValid,
+    setValue,
+    setValues,
+    setError,
+    setErrors,
+    validateField,
+    validateForm,
+    resetForm,
+    handleChange,
+    handleBlur,
+  } = useFormValidation({
+    initialValues: {
+      vendorName: "",
+      oneTimeVendor: "",
+      poDate: undefined,
+      poNumber: "",
+      customerSO: "",
+      customerInvoice: "",
+      apAccount: "",
+      transactionType: TransactionType.GOODS,
+      transactionOrigin: "",
+      shipVia: "",
+    },
+    validationSchema: {
+      vendorName: [{ required: true, message: "Please select a vendor" }],
+      poDate: [{ required: true, message: "Please select PO date" }],
+      poNumber: [
+        { required: true, message: "Please enter PO number" },
+        { min: 2, message: "PO number must be at least 2 characters" },
+      ],
+      apAccount: [{ required: true, message: "Please select AP account" }],
+      transactionType: [
+        { required: true, message: "Please select transaction type" },
+      ],
+    },
+    validateOnChange: true,
+    validateOnBlur: true,
+  });
 
-  // Initialize form with data
   useEffect(() => {
     if (initialData) {
-      form.setFieldsValue({
+      const formValues = {
         vendorName: initialData.vendorName,
         oneTimeVendor: initialData.oneTimeVendor,
-        poDate: initialData.poDate ? new Date(initialData.poDate) : undefined,
+        poDate: initialData.poDate ? dayjs(initialData.poDate) : undefined,
         poNumber: initialData.poNumber,
         customerSO: initialData.customerSO,
         customerInvoice: initialData.customerInvoice,
@@ -49,133 +120,191 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         transactionType: initialData.transactionType,
         transactionOrigin: initialData.transactionOrigin,
         shipVia: initialData.shipVia,
-      });
+      };
 
-      // Convert line items to the format expected by the form
-      const formattedLineItems = initialData.lineItems.map(item => ({
-        item: item.item,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        description: item.description || '',
-        glAccount: item.glAccount,
-      }));
+      // Update both form and validation state
+      form.setFieldsValue(formValues);
+      setValues(formValues);
+
+      const formattedLineItems: LineItemWithId[] = initialData.lineItems.map(
+        (item) => ({
+          id:
+            item.id ||
+            `line-item-${Date.now()}-${Math.random()
+              .toString(36)
+              .substr(2, 9)}`,
+          item: item.item,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          description: item.description || "",
+          glAccount: item.glAccount,
+        })
+      );
       setLineItems(formattedLineItems);
     } else {
-      // Set default values for new purchase order
-      form.setFieldsValue({
-        poDate: new Date(),
+      const defaultValues = {
+        poDate: undefined,
         transactionType: TransactionType.GOODS,
-      });
-      // Add one empty line item
-      setLineItems([{
-        item: '',
-        quantity: 1,
-        unitPrice: 0,
-        description: '',
-        glAccount: '',
-      }]);
+      };
+      form.setFieldsValue(defaultValues);
+      setValues(defaultValues);
+      // Start with no line items - user must add them
+      setLineItems([]);
     }
-  }, [initialData, form]);
+  }, [initialData, form, setValues]);
 
-  // Calculate total amount whenever line items change
   useEffect(() => {
     const total = lineItems.reduce((sum, item) => {
-      return sum + (item.quantity * item.unitPrice);
+      return sum + item.quantity * item.unitPrice;
     }, 0);
     setTotalAmount(total);
   }, [lineItems]);
 
-  const handleLineItemUpdate = (index: number, data: CreatePurchaseOrderLineItemDto | Partial<PurchaseOrderLineItem>) => {
-    const updatedLineItems = [...lineItems];
-    // Ensure the data has all required fields for CreatePurchaseOrderLineItemDto
-    const lineItemData: CreatePurchaseOrderLineItemDto = {
-      item: data.item || '',
-      quantity: data.quantity || 1,
-      unitPrice: data.unitPrice || 0,
-      description: data.description || '',
-      glAccount: data.glAccount || '',
-    };
-    updatedLineItems[index] = lineItemData;
+  const handleLineItemUpdate = (
+    id: string,
+    data: CreatePurchaseOrderLineItemDto | Partial<PurchaseOrderLineItem>
+  ) => {
+    const updatedLineItems = lineItems.map((item) =>
+      item.id === id
+        ? {
+            ...item,
+            item: data.item || "",
+            quantity: data.quantity || 1,
+            unitPrice: data.unitPrice || 1,
+            description: data.description || "",
+            glAccount: data.glAccount || "",
+          }
+        : item
+    );
     setLineItems(updatedLineItems);
   };
 
-  const handleLineItemRemove = (index: number) => {
-    if (lineItems.length > 1) {
-      const updatedLineItems = lineItems.filter((_, i) => i !== index);
-      setLineItems(updatedLineItems);
-    }
+  const handleLineItemRemove = (id: string) => {
+    const updatedLineItems = lineItems.filter((item) => item.id !== id);
+    setLineItems(updatedLineItems);
   };
 
   const handleAddLineItem = () => {
-    setLineItems([...lineItems, {
-      item: '',
+    const newLineItem: CreatePurchaseOrderLineItemDto & { id: string } = {
+      id: `line-item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      item: "",
       quantity: 1,
-      unitPrice: 0,
-      description: '',
-      glAccount: '',
-    }]);
+      unitPrice: 1,
+      description: "",
+      glAccount: "",
+    };
+    setLineItems([...lineItems, newLineItem]);
   };
 
-  const handleSubmit = async (action: 'save' | 'saveAndNew') => {
+  // Handle form field changes and sync with validation state
+  const handleFormChange = (changedValues: any, allValues: any) => {
+    // Update validation state when form values change
+    Object.keys(changedValues).forEach((key) => {
+      setValue(key, changedValues[key]);
+    });
+  };
+
+    const handleSubmit = async (action: "save" | "saveAndNew") => {
+    // Clear any previous form errors
+    setFormError(null);
+    
     try {
-      const values = await form.validateFields();
-      
-      // Validate line items
-      if (lineItems.length === 0) {
-        throw new Error('At least one line item is required');
+      // Validate form using both Ant Design and custom validation
+      const formValues = await form.validateFields();
+
+      // Also validate using our custom validation hook
+      if (!validateForm()) {
+        setFormError("Please fix the validation errors before submitting");
+        return;
       }
 
-      const hasInvalidLineItems = lineItems.some(item => 
-        !item.item || !item.glAccount || item.quantity <= 0 || item.unitPrice < 0
+      // Check if there are any line items
+      if (lineItems.length === 0) {
+        setFormError("At least one line item is required. Please add a line item before submitting.");
+        return;
+      }
+
+      // Validate each line item
+      const invalidLineItems = lineItems.filter(
+        (item) => 
+          !item.item || 
+          !item.glAccount || 
+          item.quantity <= 0 || 
+          item.unitPrice <= 0
       );
 
-      if (hasInvalidLineItems) {
-        throw new Error('Please fill in all required fields for line items');
+      if (invalidLineItems.length > 0) {
+        const missingFields = invalidLineItems.map((item, index) => {
+          const errors = [];
+          if (!item.item) errors.push("Item name");
+          if (!item.glAccount) errors.push("GL Account");
+          if (item.quantity <= 0) errors.push("Quantity (must be > 0)");
+          if (item.unitPrice <= 0) errors.push("Unit Price (must be > 0)");
+          return `Line item ${index + 1}: ${errors.join(", ")}`;
+        });
+        setFormError(`Please fix the following issues:\n${missingFields.join("\n")}`);
+        return;
       }
 
       const formData = {
-        ...values,
-        poDate: values.poDate ? formatDateForAPI(values.poDate) : undefined,
-        lineItems: lineItems,
+        ...formValues,
+        poDate: formValues.poDate
+          ? formatDateForAPI(formValues.poDate)
+          : undefined,
+        lineItems: lineItems.map(({ id, ...lineItem }) => lineItem), // Remove id field before sending to API
       };
 
-      if (action === 'save') {
-        onSave(formData);
+      if (formData.poDate === "") {
+        setFormError("Please select a valid PO date");
+        return;
+      }
+
+      if (action === "save") {
+        await onSave(formData);
       } else {
-        onSaveAndNew(formData);
+        await onSaveAndNew(formData);
       }
     } catch (error) {
-      console.error('Form validation failed:', error);
+      console.error("Form validation failed:", error);
+      // Handle any other errors that might occur
+      if (error instanceof Error) {
+        setFormError(error.message);
+      } else {
+        setFormError("An unexpected error occurred");
+      }
     }
   };
 
-  // Mock data for dropdowns - in a real app, these would come from API
   const vendorOptions = [
-    { label: 'ABC Supplies Inc.', value: 'ABC Supplies Inc.' },
-    { label: 'XYZ Corporation', value: 'XYZ Corporation' },
-    { label: 'Tech Solutions Ltd.', value: 'Tech Solutions Ltd.' },
-    { label: 'Office Depot', value: 'Office Depot' },
+    { label: "ABC Supplies Inc.", value: "ABC Supplies Inc." },
+    { label: "XYZ Corporation", value: "XYZ Corporation" },
+    { label: "Tech Solutions Ltd.", value: "Tech Solutions Ltd." },
+    { label: "Office Depot", value: "Office Depot" },
   ];
 
   const apAccountOptions = [
-    { label: '2000 - Accounts Payable', value: '2000' },
-    { label: '2100 - Accrued Expenses', value: '2100' },
-    { label: '2200 - Notes Payable', value: '2200' },
+    { label: "2000 - Accounts Payable", value: "2000" },
+    { label: "2100 - Accrued Expenses", value: "2100" },
+    { label: "2200 - Notes Payable", value: "2200" },
   ];
 
-  const transactionTypeOptions = Object.entries(TransactionType).map(([key, value]) => ({
-    label: value,
-    value: value
-  }));
+  const transactionTypeOptions = Object.entries(TransactionType).map(
+    ([key, value]) => ({
+      label: value,
+      value: value,
+    })
+  );
 
-  const transactionOriginOptions = Object.entries(TransactionOrigin).map(([key, value]) => ({
-    label: value,
-    value: value
-  }));
+  const transactionOriginOptions = Object.entries(TransactionOrigin).map(
+    ([key, value]) => ({
+      label: value,
+      value: value,
+    })
+  );
 
   const shipViaOptions = Object.entries(ShipVia).map(([key, value]) => ({
     label: value,
-    value: value
+    value: value,
   }));
 
   return (
@@ -183,15 +312,52 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       form={form}
       layout="vertical"
       className="space-y-6"
+      onValuesChange={handleFormChange}
     >
-      {/* Header Fields Section */}
+      {/* Display form validation errors */}
+      {formError && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">
+                Form Validation Error
+              </h3>
+              <div className="mt-2 text-sm text-red-700 whitespace-pre-line">
+                {formError}
+              </div>
+              <div className="mt-3">
+                <button
+                  type="button"
+                  onClick={() => setFormError(null)}
+                  className="text-sm text-red-600 hover:text-red-500 font-medium"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Card title="Purchase Order Details" className="mb-6">
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
               label="Vendor"
               name="vendorName"
-              rules={[{ required: true, message: 'Please select a vendor' }]}
+              validateStatus={
+                errors.vendorName && touched.vendorName ? "error" : ""
+              }
+              help={
+                errors.vendorName && touched.vendorName
+                  ? errors.vendorName[0]
+                  : ""
+              }
             >
               <Select
                 placeholder="Select vendor"
@@ -202,10 +368,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
-              label="One Time Vendor"
-              name="oneTimeVendor"
-            >
+            <Form.Item label="One Time Vendor" name="oneTimeVendor">
               <Input placeholder="Enter one-time vendor name" />
             </Form.Item>
           </Col>
@@ -216,25 +379,31 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             <Form.Item
               label="PO Date"
               name="poDate"
-              rules={[{ required: true, message: 'Please select PO date' }]}
+              validateStatus={errors.poDate && touched.poDate ? "error" : ""}
+              help={errors.poDate && touched.poDate ? errors.poDate[0] : ""}
             >
-              <DatePicker style={{ width: '100%' }} />
+              <DatePicker
+                style={{ width: "100%" }}
+                placeholder="Select PO date"
+              />
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item
               label="PO Number"
               name="poNumber"
-              rules={[{ required: true, message: 'Please enter PO number' }]}
+              validateStatus={
+                errors.poNumber && touched.poNumber ? "error" : ""
+              }
+              help={
+                errors.poNumber && touched.poNumber ? errors.poNumber[0] : ""
+              }
             >
               <Input placeholder="Enter PO number" />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item
-              label="Customer SO"
-              name="customerSO"
-            >
+            <Form.Item label="Customer SO" name="customerSO">
               <Input placeholder="Enter customer SO" />
             </Form.Item>
           </Col>
@@ -242,10 +411,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item
-              label="Customer Invoice"
-              name="customerInvoice"
-            >
+            <Form.Item label="Customer Invoice" name="customerInvoice">
               <Input placeholder="Enter customer invoice" />
             </Form.Item>
           </Col>
@@ -253,7 +419,12 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             <Form.Item
               label="AP Account"
               name="apAccount"
-              rules={[{ required: true, message: 'Please select AP account' }]}
+              validateStatus={
+                errors.apAccount && touched.apAccount ? "error" : ""
+              }
+              help={
+                errors.apAccount && touched.apAccount ? errors.apAccount[0] : ""
+              }
             >
               <Select
                 placeholder="Select AP account"
@@ -265,7 +436,14 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             <Form.Item
               label="Transaction Type"
               name="transactionType"
-              rules={[{ required: true, message: 'Please select transaction type' }]}
+              validateStatus={
+                errors.transactionType && touched.transactionType ? "error" : ""
+              }
+              help={
+                errors.transactionType && touched.transactionType
+                  ? errors.transactionType[0]
+                  : ""
+              }
             >
               <Select
                 placeholder="Select transaction type"
@@ -277,10 +455,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item
-              label="Transaction Origin"
-              name="transactionOrigin"
-            >
+            <Form.Item label="Transaction Origin" name="transactionOrigin">
               <Select
                 placeholder="Select transaction origin"
                 options={transactionOriginOptions}
@@ -289,10 +464,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
-              label="Ship Via"
-              name="shipVia"
-            >
+            <Form.Item label="Ship Via" name="shipVia">
               <Select
                 placeholder="Select shipping method"
                 options={shipViaOptions}
@@ -303,8 +475,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         </Row>
       </Card>
 
-      {/* Line Items Section */}
-      <Card 
+      <Card
         title={
           <div className="flex justify-between items-center">
             <span>Line Items</span>
@@ -315,28 +486,34 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         }
         className="mb-6"
       >
-        {lineItems.map((item, index) => (
-          <PurchaseOrderLineItemRow
-            key={index}
-            data={item}
-            index={index}
-            onUpdate={handleLineItemUpdate}
-            onRemove={handleLineItemRemove}
-            disabled={loading}
-          />
-        ))}
+        {lineItems.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <p>No line items added yet.</p>
+            <p className="text-sm">
+              Click "Add Line Item" to start adding items to this purchase
+              order.
+            </p>
+          </div>
+        ) : (
+          lineItems.map((item) => (
+            <PurchaseOrderLineItemRow
+              key={item.id}
+              data={item}
+              id={item.id}
+              onUpdate={handleLineItemUpdate}
+              onRemove={handleLineItemRemove}
+              disabled={loading}
+            />
+          ))
+        )}
       </Card>
 
-      {/* Total Amount Display */}
       <Card className="mb-6">
         <div className="text-right">
-          <Title level={4}>
-            Total Amount: {formatCurrency(totalAmount)}
-          </Title>
+          <Title level={4}>Total Amount: {formatCurrency(totalAmount)}</Title>
         </div>
       </Card>
 
-      {/* Action Buttons */}
       <div className="flex justify-between">
         <Space>
           <Button onClick={onCancel} disabled={loading}>
@@ -348,23 +525,20 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             </Button>
           )}
         </Space>
-        
+
         <Space>
-          <Button 
-            type="primary" 
-            onClick={() => handleSubmit('save')}
+          <Button
+            type="primary"
+            onClick={() => handleSubmit("save")}
             loading={loading}
           >
             Save
           </Button>
-          <Button 
-            onClick={() => handleSubmit('saveAndNew')}
-            loading={loading}
-          >
+          <Button onClick={() => handleSubmit("saveAndNew")} loading={loading}>
             Save & New
           </Button>
         </Space>
       </div>
     </Form>
   );
-}; 
+};

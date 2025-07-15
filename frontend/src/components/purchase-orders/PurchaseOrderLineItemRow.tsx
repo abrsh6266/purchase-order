@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Select, Button, Space, Row, Col } from 'antd';
+import { Input, Select, Button, Row, Col } from 'antd';
 import { PurchaseOrderLineItem, CreatePurchaseOrderLineItemDto } from '../../types/purchaseOrder';
 import { formatCurrency } from '../../utils/numberUtils';
 
@@ -7,15 +7,15 @@ const { TextArea } = Input;
 
 interface PurchaseOrderLineItemRowProps {
   data: Partial<PurchaseOrderLineItem> | CreatePurchaseOrderLineItemDto;
-  index: number;
-  onUpdate: (index: number, data: Partial<PurchaseOrderLineItem> | CreatePurchaseOrderLineItemDto) => void;
-  onRemove: (index: number) => void;
+  id: string;
+  onUpdate: (id: string, data: Partial<PurchaseOrderLineItem> | CreatePurchaseOrderLineItemDto) => void;
+  onRemove: (id: string) => void;
   disabled?: boolean;
 }
 
 export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> = ({
   data,
-  index,
+  id,
   onUpdate,
   onRemove,
   disabled = false
@@ -23,7 +23,7 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
   const [localData, setLocalData] = useState<Partial<PurchaseOrderLineItem> | CreatePurchaseOrderLineItemDto>({
     item: '',
     quantity: 1,
-    unitPrice: 0,
+    unitPrice: 1, // Changed from 0 to 1 to meet backend validation
     description: '',
     glAccount: '',
     ...data
@@ -42,7 +42,7 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
   const handleFieldChange = (field: keyof CreatePurchaseOrderLineItemDto, value: any) => {
     const updatedData = { ...localData, [field]: value };
     setLocalData(updatedData);
-    onUpdate(index, updatedData);
+    onUpdate(id, updatedData);
   };
 
   // Mock data for dropdowns - in a real app, these would come from API
@@ -81,7 +81,11 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
               options={itemOptions}
               disabled={disabled}
               style={{ width: '100%' }}
+              status={!localData.item ? 'error' : ''}
             />
+            {!localData.item && (
+              <div className="text-red-500 text-xs mt-1">Item is required</div>
+            )}
           </div>
         </Col>
 
@@ -94,8 +98,14 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
               type="number"
               min={1}
               value={localData.quantity}
-              onChange={(e) => handleFieldChange('quantity', parseFloat(e.target.value) || 0)}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value);
+                // Ensure minimum value of 1
+                const validValue = value > 0 ? value : 1;
+                handleFieldChange('quantity', validValue);
+              }}
               disabled={disabled}
+              placeholder="Enter quantity (min: 1)"
             />
           </div>
         </Col>
@@ -107,11 +117,17 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
             </label>
             <Input
               type="number"
-              min={0}
+              min={1}
               step={0.01}
               value={localData.unitPrice}
-              onChange={(e) => handleFieldChange('unitPrice', parseFloat(e.target.value) || 0)}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value);
+                // Ensure minimum value of 1
+                const validValue = value > 0 ? value : 1;
+                handleFieldChange('unitPrice', validValue);
+              }}
               disabled={disabled}
+              placeholder="Enter unit price (min: 1)"
             />
           </div>
         </Col>
@@ -139,7 +155,11 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
               options={glAccountOptions}
               disabled={disabled}
               style={{ width: '100%' }}
+              status={!localData.glAccount ? 'error' : ''}
             />
+            {!localData.glAccount && (
+              <div className="text-red-500 text-xs mt-1">GL Account is required</div>
+            )}
           </div>
         </Col>
 
@@ -151,7 +171,7 @@ export const PurchaseOrderLineItemRow: React.FC<PurchaseOrderLineItemRowProps> =
             <Button
               type="text"
               danger
-              onClick={() => onRemove(index)}
+              onClick={() => onRemove(id)}
               disabled={disabled}
               style={{ width: '100%' }}
             >

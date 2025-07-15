@@ -18,12 +18,41 @@ export const formatDate = (date: string | Date | null | undefined, format = 'MMM
 /**
  * Format a date for API requests (YYYY-MM-DD)
  */
-export const formatDateForAPI = (date: string | Date | null | undefined): string => {
+export const formatDateForAPI = (date: string | Date | null | undefined | any): string => {
   if (!date) return '';
-  const dateObj = new Date(date);
-  if (isNaN(dateObj.getTime())) return '';
   
-  return dateObj.toISOString().split('T')[0];
+  try {
+    // Handle dayjs objects from Ant Design DatePicker
+    if (date && typeof date === 'object') {
+      // Check if it's a dayjs object (has $d property)
+      if (date.$d) {
+        const dateObj = new Date(date.$d);
+        if (isNaN(dateObj.getTime())) return '';
+        return dateObj.toISOString().split('T')[0];
+      }
+      
+      // Check if it's a dayjs object with toDate method
+      if (typeof date.toDate === 'function') {
+        const dateObj = date.toDate();
+        if (isNaN(dateObj.getTime())) return '';
+        return dateObj.toISOString().split('T')[0];
+      }
+      
+      // Check if it's a dayjs object with format method
+      if (typeof date.format === 'function') {
+        return date.format('YYYY-MM-DD');
+      }
+    }
+    
+    // Handle regular Date objects or date strings
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) return '';
+    
+    return dateObj.toISOString().split('T')[0];
+  } catch (error) {
+    console.error('Error formatting date for API:', error);
+    return '';
+  }
 };
 
 /**
