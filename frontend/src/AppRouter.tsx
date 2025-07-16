@@ -41,9 +41,9 @@ const PurchaseOrderFormWithLayout: React.FC = () => {
 
 const GLAccountListWithLayout: React.FC = () => (
   <AppLayout
-    pageTitle="GL Accounts"
-    pageSubtitle="Manage and track all GL accounts"
-    breadcrumb={[{ title: "GL Accounts", path: "/gl-accounts" }]}
+    pageTitle="Accounts"
+    pageSubtitle="Manage and track all accounts"
+    breadcrumb={[{ title: "Accounts", path: "/gl-accounts" }]}
   >
     <GLAccountListPage />
   </AppLayout>
