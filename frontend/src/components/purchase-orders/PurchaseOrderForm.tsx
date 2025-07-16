@@ -29,6 +29,8 @@ import { PurchaseOrderLineItemRow } from "./PurchaseOrderLineItemRow";
 import { formatCurrency } from "../../utils/numberUtils";
 import { formatDateForAPI } from "../../utils/dateUtils";
 import { useFormValidation } from "../../hooks/useFormValidation";
+import { useGLAccounts } from "../../hooks/useGLAccounts";
+import { GLAccountOption } from "../../types/glAccount";
 import dayjs from "dayjs";
 
 const { Title } = Typography;
@@ -64,6 +66,11 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
   const [lineItems, setLineItems] = useState<LineItemWithId[]>([]);
   const [totalAmount, setTotalAmount] = useState(0);
   const [formError, setFormError] = useState<string | null>(null);
+  const [apAccountOptions, setApAccountOptions] = useState<GLAccountOption[]>([]);
+  const [loadingApAccounts, setLoadingApAccounts] = useState(false);
+
+  // Initialize GL accounts hook for AP accounts
+  const { getAccountOptions } = useGLAccounts({ autoFetch: false });
 
   // Initialize form validation
   const {
@@ -105,8 +112,46 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     validateOnBlur: true,
   });
 
+  // Load AP account options from GL accounts
+  useEffect(() => {
+    const loadApAccountOptions = async () => {
+      setLoadingApAccounts(true);
+      try {
+        const allOptions = await getAccountOptions();
+        const apOptions = allOptions
+          .filter(option => option.accountCode)
+          .slice(0, 1000);
+        setApAccountOptions(apOptions);
+      } catch (error) {
+        console.error("Failed to load AP account options:", error);
+      } finally {
+        setLoadingApAccounts(false);
+      }
+    };
+
+    loadApAccountOptions();
+  }, [getAccountOptions]);
+
+  // Function to find matching AP account by account code or ID
+  const findMatchingApAccount = (apAccountValue: string): GLAccountOption | undefined => {
+    if (!apAccountValue) return undefined;
+    
+    // First try to match by account code (if the value is a code like "2000")
+    const matchByCode = apAccountOptions.find(option => option.accountCode === apAccountValue);
+    if (matchByCode) return matchByCode;
+    
+    // Then try to match by ID (if the value is an ID)
+    const matchById = apAccountOptions.find(option => option.value === apAccountValue);
+    if (matchById) return matchById;
+    
+    return undefined;
+  };
+
   useEffect(() => {
     if (initialData) {
+      // Find the matching AP account option for the stored value
+      const matchingApAccount = findMatchingApAccount(initialData.apAccount);
+      
       const formValues = {
         vendorName: initialData.vendorName,
         oneTimeVendor: initialData.oneTimeVendor,
@@ -114,7 +159,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         poNumber: initialData.poNumber,
         customerSO: initialData.customerSO,
         customerInvoice: initialData.customerInvoice,
-        apAccount: initialData.apAccount,
+        apAccount: matchingApAccount ? matchingApAccount.value : initialData.apAccount,
         transactionType: initialData.transactionType,
         transactionOrigin: initialData.transactionOrigin,
         shipVia: initialData.shipVia,
@@ -149,7 +194,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       // Start with no line items - user must add them
       setLineItems([]);
     }
-  }, [initialData, form, setValues]);
+  }, [initialData, form, setValues, apAccountOptions]);
 
   useEffect(() => {
     const total = lineItems.reduce((sum, item) => {
@@ -199,6 +244,15 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     // Update validation state when form values change
     Object.keys(changedValues).forEach((key) => {
       setValue(key, changedValues[key]);
+
+      // Special handling for AP account selection
+      if (key === "apAccount" && changedValues[key]) {
+        const selectedOption = apAccountOptions.find(option => option.value === changedValues[key]);
+        if (selectedOption) {
+          // Store the account code as the actual value
+          setValue("apAccount", selectedOption.accountCode);
+        }
+      }
 
       // Handle validation for this field
       if (changedValues[key] && changedValues[key] !== "") {
@@ -323,8 +377,13 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
           ? PurchaseOrderStatus.DRAFT
           : PurchaseOrderStatus.SUBMITTED;
 
+      // Ensure AP account is stored as account code, not the option value
+      const selectedApAccount = findMatchingApAccount(formValues.apAccount);
+      const apAccountValue = selectedApAccount ? selectedApAccount.accountCode : formValues.apAccount;
+
       const formData = {
         ...formValues,
+        apAccount: apAccountValue,
         poDate: formValues.poDate
           ? formatDateForAPI(formValues.poDate)
           : undefined,
@@ -389,12 +448,6 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     { label: "Office Depot", value: "Office Depot" },
   ];
 
-  const apAccountOptions = [
-    { label: "2000 - Accounts Payable", value: "2000" },
-    { label: "2100 - Accrued Expenses", value: "2100" },
-    { label: "2200 - Notes Payable", value: "2200" },
-  ];
-
   const transactionTypeOptions = Object.entries(TransactionType).map(
     ([_key, value]) => ({
       label: value,
@@ -413,6 +466,9 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     label: value,
     value: value,
   }));
+
+  // Get the selected AP account for display
+  const selectedApAccount = findMatchingApAccount(values.apAccount);
 
   return (
     <Form
@@ -608,10 +664,42 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
               }
             >
               <Select
-                placeholder="Select AP account (required)"
+                placeholder={loadingApAccounts ? "Loading AP accounts..." : "Select AP account (required)"}
                 options={apAccountOptions}
+                showSearch
+                allowClear
+                loading={loadingApAccounts}
+                notFoundContent={
+                  !loadingApAccounts && apAccountOptions.length === 0
+                    ? "No AP accounts found. Please add GL accounts starting with '2'."
+                    : undefined
+                }
+                optionFilterProp="label"
+                filterOption={(input, option) =>
+                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase()) ||
+                  (option?.accountCode ?? '').toLowerCase().includes(input.toLowerCase())
+                }
               />
             </Form.Item>
+            
+            {/* Display selected AP account details */}
+            {selectedApAccount && (
+              <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="font-medium text-blue-800">
+                      {selectedApAccount.accountName}
+                    </div>
+                    <div className="text-sm text-blue-600">
+                      Account Code: {selectedApAccount.accountCode}
+                    </div>
+                  </div>
+                  <div className="text-xs text-blue-500 font-mono">
+                    {selectedApAccount.value}
+                  </div>
+                </div>
+              </div>
+            )}
           </Col>
           <Col xs={24} sm={24} md={8}>
             <Form.Item
