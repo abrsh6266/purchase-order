@@ -50,7 +50,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     {
       key: "/gl-accounts",
       icon: <BankOutlined />,
-      label: "GL Accounts",
+      label: "Accounts",
     },
   ];
 

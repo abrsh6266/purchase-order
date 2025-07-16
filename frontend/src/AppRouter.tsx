@@ -43,7 +43,7 @@ const GLAccountListWithLayout: React.FC = () => (
   <AppLayout
     pageTitle="GL Accounts"
     pageSubtitle="Manage and track all GL accounts"
-    breadcrumb={[{ title: "GL Accounts", path: "/gl-accounts" }]}
+    breadcrumb={[{ title: "Accounts", path: "/gl-accounts" }]}
   >
     <GLAccountListPage />
   </AppLayout>
