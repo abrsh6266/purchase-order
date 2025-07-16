@@ -118,9 +118,8 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       setLoadingApAccounts(true);
       try {
         const allOptions = await getAccountOptions();
-        // Filter accounts that start with "2" (AP accounts) and limit to 1000
         const apOptions = allOptions
-          .filter(option => option.accountCode.startsWith('2'))
+          .filter(option => option.accountCode)
           .slice(0, 1000);
         setApAccountOptions(apOptions);
       } catch (error) {
